@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import Link from "next/link"; // Use for page navigation
+import Link from "next/link";
 import { Menu, X, ExternalLink } from "lucide-react";
 
 const Navbar = () => {
@@ -28,7 +28,7 @@ const Navbar = () => {
             href="/"
             className="text-2xl font-semibold flex items-center text-space-cadet "
           >
-            <Image src="/logo1.png" alt="Logo" width={150} height={40} />
+            <Image src="/LOGO-0.png" alt="Logo" width={150} height={20} />
           </Link>
 
           {/* Desktop Navigation Items */}

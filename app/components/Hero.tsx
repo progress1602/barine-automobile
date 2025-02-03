@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// 🚗 Slide data with images, titles, and subtitles
+// Slide data with images, titles, and subtitles
 const slides = [
   {
     image: "/car5.jpeg",
@@ -22,7 +22,7 @@ const slides = [
   },
   {
     image: "/car3.jpeg",
-    title: "Sports Collection",
+    title: "Sports Series",
     subtitle: "Pure performance meets luxury",
   },
   {
@@ -35,26 +35,26 @@ const slides = [
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0); // 🔢 State to track the current slide index
 
-  // 👉 Function to move to the next slide
+  // Function to move to the next slide
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
   }, []);
 
-  // 👈 Function to move to the previous slide
+  // Function to move to the previous slide
   const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
   }, []);
 
-  // ⏳ Automatically switch slides every 6 seconds
+  // Automatically switch slides every 6 seconds
   useEffect(() => {
     const interval = setInterval(nextSlide, 6000);
     return () => clearInterval(interval);
   }, [nextSlide]);
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
-      {/* 🔥 Wrapper for all slides */}
-      <div className="relative h-full w-full">
+    <div className="relative md:h-screen lg:h-screen w-full overflow-hidden">
+      {/* Wrapper for all slides */}
+      <div className="relative h-[30rem] md:h-full lg:h-full w-full">
         {slides.map((slide, index) => (
           <div
             key={index}
@@ -62,7 +62,7 @@ const Hero = () => {
               index === currentSlide ? "opacity-100" : "opacity-0"
             }`}
           >
-            {/* 🎨 Background Image with dark overlay */}
+            {/* Background Image with dark overlay */}
             <div
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
               style={{
@@ -72,7 +72,7 @@ const Hero = () => {
               <div className="absolute inset-0 bg-black/40" />
             </div>
 
-            {/* 📜 Slide Content (Title, Subtitle, Button) */}
+            {/* Slide Content (Title, Subtitle, Button) */}
             <div className="relative h-full flex flex-col items-center justify-center text-white px-4">
               <h1 className="text-5xl md:text-8xl font-medium mb-4">
                 {slide.title}
@@ -88,15 +88,15 @@ const Hero = () => {
         ))}
       </div>
 
-      {/* 🔄 Navigation Arrows */}
+      {/* Navigation Arrows */}
       <button
-        onClick={prevSlide} // 👈 Move to previous slide
+        onClick={prevSlide} // Move to previous slide
         className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10"
       >
         <ChevronLeft size={48} />
       </button>
       <button
-        onClick={nextSlide} // 👉 Move to next slide
+        onClick={nextSlide} // Move to next slide
         className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10"
       >
         <ChevronRight size={48} />
