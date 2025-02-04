@@ -28,7 +28,7 @@ const Navbar = () => {
             href="/"
             className="text-2xl font-semibold flex items-center text-space-cadet "
           >
-            <Image src="/LOGO-0.png" alt="Logo" width={150} height={20} />
+            <Image src="/" alt="Logo" width={150} height={20} />
           </Link>
 
           {/* Desktop Navigation Items */}
