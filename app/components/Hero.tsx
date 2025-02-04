@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+// import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Slide data with images, titles, and subtitles
 const slides = [
@@ -41,9 +41,9 @@ const Hero = () => {
   }, []);
 
   // Function to move to the previous slide
-  const prevSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  }, []);
+  // const prevSlide = useCallback(() => {
+  //   setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  // }, []);
 
   // Automatically switch slides every 6 seconds
   useEffect(() => {
@@ -89,7 +89,7 @@ const Hero = () => {
       </div>
 
       {/* Navigation Arrows */}
-      <button
+      {/* <button
         onClick={prevSlide} // Move to previous slide
         className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10"
       >
@@ -100,7 +100,7 @@ const Hero = () => {
         className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10"
       >
         <ChevronRight size={48} />
-      </button>
+      </button> */}
     </div>
   );
 };
