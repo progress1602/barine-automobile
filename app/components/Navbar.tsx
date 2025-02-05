@@ -53,9 +53,9 @@ const Navbar = () => {
 
           {/* Navigation Buttons */}
           <div className="hidden md:flex items-center">
-            <Link href="/">
+            <Link href="/signup">
               <button className="flex w-36 h-12 md:ml-4 items-center justify-center space-x-2 font-semibold shadow-inner shadow-orange-600 active:bg-orange-600 transition-colors text-base border-2 active:transform active:scale-95 text-white bg-orange-600  border-orange-600 py-2 px-4 duration-200 rounded-2xl  hover:text-black ">
-                <span>Rent Now</span>
+                <span>Signup</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </button>
             </Link>
@@ -90,10 +90,10 @@ const Navbar = () => {
               </li>
             ))}
           </ul>
-          <Link href="/">
+          <Link href="/signup">
             <div className="mt-6 flex flex-col space-y-4">
               <button className=" border-space-cadet py-2 px-4 text-center transition-all duration-300 rounded-2xl border border-orange-600  hover:bg-orange-600 bg-white font-bold">
-                <span>Rent Now</span>
+                <span>Signup</span>
               </button>
             </div>
           </Link>

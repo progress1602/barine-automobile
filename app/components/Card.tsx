@@ -42,7 +42,7 @@ const ServiceGrid = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       {/* Top Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 mb">
+      <div className="grid grid-cols-1 md:grid-cols-3 mt">
         {topRow.map((service, index) => (
           <div
             key={index}

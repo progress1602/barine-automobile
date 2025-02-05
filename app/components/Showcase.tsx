@@ -83,7 +83,7 @@ const CarCard: React.FC<CarCardProps> = ({
 }) => (
   <div className="bg-[#FAF9F6] p-8 flex flex-col items-center">
     <Image
-      src={image} // 👈 Now each car has its own image
+      src={image} //  each car has its own image
       alt={name}
       width={200}
       height={200}

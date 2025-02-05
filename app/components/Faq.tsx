@@ -38,10 +38,6 @@ export default function FAQ() {
     setOpenIndex(openIndex === index ? null : index);
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
     <div className="bg-white text-black p-6 max-w-2xl mx-auto mt-20">
       <h2 className="text-2xl font-bold mb-4 text-orange-600">FAQ</h2>
@@ -70,14 +66,6 @@ export default function FAQ() {
             </div>
           )
         )}
-
-        {/* TOP Button */}
-        <button
-          onClick={scrollToTop}
-          className="absolute bottom-8 right-8 text-[#FF6B35] uppercase text-sm tracking-wider font-medium hover:text-[#E85A2C] transition-colors"
-        >
-          TOP
-        </button>
       </div>
     </div>
   );
