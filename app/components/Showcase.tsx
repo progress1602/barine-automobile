@@ -92,16 +92,16 @@ const CarCard: React.FC<CarCardProps> = ({
     <h3 className="text-2xl font-medium text-gray-900 mb-2">{name}</h3>
     <div className="flex gap-1 mb-4">
       {[...Array(5)].map((_, index) => (
-        <Star key={index} className="w-5 h-5 fill-orange-600" />
+        <Star key={index} className="w-5 h-5 fill-red-600" />
       ))}
     </div>
     <p className="text-gray-600 text-center mb-4">{description}</p>
     <div className="flex items-baseline mb-6">
-      <span className="text-4xl font-light">$</span>
+      <span className="text-4xl font-light">£</span>
       <span className="text-5xl font-light">{price}</span>
       <span className="text-gray-600 ml-2">/ Per hour</span>
     </div>
-    <button className="border border-orange-600 rounded-2xl font-normal text-black py-3 px-6 w-full hover:bg-orange-600 hover:text-black transition-colors">
+    <button className="border border-red-600 rounded-2xl font-normal text-black py-3 px-6 w-full hover:bg-red-600 hover:text-black transition-colors">
       + MORE DETAILS
     </button>
   </div>

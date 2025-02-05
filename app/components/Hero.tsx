@@ -33,7 +33,7 @@ const slides = [
 ];
 
 const Hero = () => {
-  const [currentSlide, setCurrentSlide] = useState(0); // 🔢 State to track the current slide index
+  const [currentSlide, setCurrentSlide] = useState(0); //  State to track the current slide index
 
   // Function to move to the next slide
   const nextSlide = useCallback(() => {
@@ -80,7 +80,7 @@ const Hero = () => {
               <p className="text-lg md:text-xl text-gray-200 mb-8">
                 {slide.subtitle}
               </p>
-              <button className="border-2 border-orange-600 px-8 py-3 rounded-2xl font-semibold hover:bg-orange-600 hover:text-black transition-colors duration-600 tracking-widest">
+              <button className="border-2 border-red-600 px-8 py-3 rounded-2xl font-semibold hover:bg-red-600 hover:text-black transition-colors duration-600 tracking-widest">
                 + DISCOVER
               </button>
             </div>

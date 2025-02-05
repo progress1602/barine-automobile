@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Brand Section */}
           <div>
-            <h2 className="text-orange-600 text-xl mb-4">
+            <h2 className="text-red-600 text-xl mb-4">
               <Image
                 src="/logo.png"
                 alt="Logo"
@@ -31,7 +31,7 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-orange-600 text-xl mb-6">Quick links</h3>
+            <h3 className="text-red-600 text-xl mb-6">Quick links</h3>
             <ul className="space-y-4">
               <li>
                 <a
@@ -70,7 +70,7 @@ const Footer = () => {
 
           {/* Our Services */}
           <div>
-            <h3 className="text-orange-600 text-xl mb-6">Our Services</h3>
+            <h3 className="text-red-600 text-xl mb-6">Our Services</h3>
             <ul className="space-y-4">
               <li>
                 <a

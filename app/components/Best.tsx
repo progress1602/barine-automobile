@@ -17,7 +17,7 @@ const DriverSafety = () => {
             <br />
             Comfort And Safety
           </h2>
-          <p className="uppercase text-[#FF6B35] tracking-wider text-sm font-medium mb-4">
+          <p className="uppercase text-red-600 tracking-wider text-sm font-medium mb-4">
             BEST DRIVERS
           </p>
           <p className="text-black mb-8 leading-relaxed">
@@ -25,7 +25,7 @@ const DriverSafety = () => {
             courteous, and dedicated to making your journey safe, smooth, and
             enjoyable. Ride with the best!.
           </p>
-          <button className="group inline-flex items-center text-black border border-orange-600 px-6 py-3 hover:bg-orange-600 hover:text-white transition-all duration-300 w-fit">
+          <button className="group inline-flex items-center text-black border border-red-600 px-6 py-3 rounded-2xl hover:bg-red-600 hover:text-white transition-all duration-300 w-fit">
             <span className="mr-2">VIEW MORE</span>
             <span className="text-xl group-hover:translate-x-1 transition-transform duration-300">
               +
@@ -48,7 +48,7 @@ const DriverSafety = () => {
       {/* TOP Button */}
       <button
         onClick={scrollToTop}
-        className="absolute bottom-8 right-8 text-[#FF6B35] uppercase text-sm tracking-wider font-medium hover:text-[#E85A2C] transition-colors"
+        className="absolute bottom-8 right-8 text-red uppercase text-sm tracking-wider font-medium hover:text-red transition-colors"
       >
         TOP
       </button>

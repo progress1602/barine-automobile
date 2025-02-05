@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X, ExternalLink } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -54,9 +54,15 @@ const Navbar = () => {
           {/* Navigation Buttons */}
           <div className="hidden md:flex items-center">
             <Link href="/signup">
-              <button className="flex w-36 h-12 md:ml-4 items-center justify-center space-x-2 font-semibold shadow-inner shadow-orange-600 active:bg-orange-600 transition-colors text-base border-2 active:transform active:scale-95 text-white bg-orange-600  border-orange-600 py-2 px-4 duration-200 rounded-2xl  hover:text-black ">
+              <button className="flex w-36 h-12 md:ml-4 items-center justify-center space-x-2 font-semibold shadow-inner shadow-red-600 active:bg-red-600 transition-colors text-base border-2 active:transform active:scale-95 text-white bg-red-600  border-red-600 py-2 px-4 duration-200 rounded-2xl  hover:text-black ">
                 <span>Signup</span>
-                <ExternalLink className="w-3.5 h-3.5" />
+                {/* <ExternalLink className="w-3.5 h-3.5" /> */}
+              </button>
+            </Link>
+
+            <Link href="/login">
+              <button className="flex w-36 h-12 md:ml-4 items-center justify-center space-x-2 font-semibold shadow-inner transition-colors text-base border text-black active:transform active:scale-95 hover:bg-red-600  border-red-600 py-2 px-4 duration-200 rounded-2xl  hover:text-white ">
+                <span>Login</span>
               </button>
             </Link>
           </div>
@@ -92,8 +98,15 @@ const Navbar = () => {
           </ul>
           <Link href="/signup">
             <div className="mt-6 flex flex-col space-y-4">
-              <button className=" border-space-cadet py-2 px-4 text-center transition-all duration-300 rounded-2xl border border-orange-600  hover:bg-orange-600 bg-white font-bold">
+              <button className=" border-space-cadet py-2 px-4 text-center transition-all duration-300 rounded-2xl border border-red-600  hover:bg-red-600 hover:text-white bg-white font-bold">
                 <span>Signup</span>
+              </button>
+            </div>
+          </Link>
+          <Link href="/login">
+            <div className="mt-6 flex flex-col space-y-4">
+              <button className=" border-space-cadet py-2 px-4 text-center transition-all duration-300 rounded-2xl border border-red-600  hover:bg-red-600 hover:text-white bg-white font-bold">
+                <span>Login</span>
               </button>
             </div>
           </Link>

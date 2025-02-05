@@ -40,7 +40,7 @@ export default function FAQ() {
 
   return (
     <div className="bg-white text-black p-6 max-w-2xl mx-auto mt-20">
-      <h2 className="text-2xl font-bold mb-4 text-orange-600">FAQ</h2>
+      <h2 className="text-2xl font-bold mb-4 text-red-600">FAQ</h2>
       <div className="space-y-2">
         {faqs.map(
           (

@@ -60,7 +60,7 @@ const ServiceGrid = () => {
               <p className="text-gray-700 leading-relaxed">
                 {service.description}
               </p>
-              <button className="flex items-center text-orange-600 hover:underline font-semibold decoration-orange-600  mt-4 uppercase text-sm tracking-wider ">
+              <button className="flex items-center text-red-600 hover:underline font-semibold decoration-red-600  mt-4 uppercase text-sm tracking-wider ">
                 + VIEW MORE
               </button>
             </div>
@@ -87,7 +87,7 @@ const ServiceGrid = () => {
               <p className="text-gray-700 leading-relaxed">
                 {service.description}
               </p>
-              <button className="flex items-center text-orange-600 hover:underline font-semibold decoration-orange-600  mt-4 uppercase text-sm tracking-wider">
+              <button className="flex items-center text-red-600 hover:underline font-semibold decoration-red-600  mt-4 uppercase text-sm tracking-wider">
                 + VIEW MORE
               </button>
             </div>
