@@ -11,7 +11,7 @@ const Footer = () => {
           <div>
             <h2 className="text-red-600 text-xl mb-4">
               <Image
-                src="/logo.png"
+                src="/logo1.png"
                 alt="Logo"
                 width={150}
                 height={20}
