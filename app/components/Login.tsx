@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast, Toaster } from "sonner";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +13,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const navigate = useRouter();
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -24,17 +25,65 @@ const LoginPage = () => {
     setLoading(true);
     setError("");
 
-    // Simulate login process
-    setTimeout(() => {
-      console.log("Login attempt:", formData);
+    const mutation = `
+      mutation LoginUser($email: String!, $password: String!) {
+        login(email: $email, password: $password) {
+          token
+          user {
+            id
+            email
+            role
+          }
+        }
+      }
+    `;
+
+    const variables = {
+      email: formData.email,
+      password: formData.password,
+    };
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(
+        "https://car-rental-system-wgtb.onrender.com/graphql",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+          body: JSON.stringify({ query: mutation, variables }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.errors) {
+        throw new Error(result.errors[0].message);
+      }
+
+      console.log("Login successful:", result.data);
+
+      // Store the token in localStorage or your preferred storage method
+      if (result.data?.login?.token) {
+        localStorage.setItem("token", result.data.login.token);
+        toast.success("successful");
+        router.push("/dashboard"); // Redirect to dashboard page after successful login
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    } finally {
       setLoading(false);
-      alert("Login successful!");
-      navigate.push("/subforum");
-    }, 1500);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#1e2235] flex items-center justify-center">
+      <Toaster position="top-right" />
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Login
@@ -88,12 +137,12 @@ const LoginPage = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className={`w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200 ${
+            className={`w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition duration-200 ${
               loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Loading..." : "Login"}
           </button>
 
           <div className="flex items-center justify-center space-x-1">

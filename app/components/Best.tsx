@@ -25,12 +25,14 @@ const DriverSafety = () => {
             courteous, and dedicated to making your journey safe, smooth, and
             enjoyable. Ride with the best!.
           </p>
-          <button className="group inline-flex items-center text-black border border-red-600 px-6 py-3 rounded-2xl hover:bg-red-600 hover:text-white transition-all duration-300 w-fit">
-            <span className="mr-2">VIEW MORE</span>
-            <span className="text-xl group-hover:translate-x-1 transition-transform duration-300">
-              +
-            </span>
-          </button>
+          <a href="/rent">
+            <button className="group inline-flex items-center text-black border border-red-600 px-6 py-3 rounded-2xl hover:bg-red-600 hover:text-white transition-all duration-300 w-fit">
+              <span className="mr-2">VIEW MORE</span>
+              <span className="text-xl group-hover:translate-x-1 transition-transform duration-300">
+                +
+              </span>
+            </button>
+          </a>
         </div>
 
         {/* Right Image */}

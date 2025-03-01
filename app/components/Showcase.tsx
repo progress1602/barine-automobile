@@ -99,11 +99,13 @@ const CarCard: React.FC<CarCardProps> = ({
     <div className="flex items-baseline mb-6">
       <span className="text-4xl font-light">£</span>
       <span className="text-5xl font-light">{price}</span>
-      <span className="text-gray-600 ml-2">/ Per hour</span>
+      <span className="text-gray-600 ml-2">/ Per day</span>
     </div>
-    <button className="border border-red-600 rounded-2xl font-normal text-black py-3 px-6 w-full hover:bg-red-600 hover:text-black transition-colors">
-      + MORE DETAILS
-    </button>
+    <a href="/catalogue">
+      <button className="border border-red-600 rounded-2xl font-normal text-black py-3 px-6 w-full hover:bg-red-600 hover:text-black transition-colors">
+        + MORE DETAILS
+      </button>
+    </a>
   </div>
 );
 

@@ -46,23 +46,23 @@ const Footer = () => {
                   href="#"
                   className="text-gray-400 hover:text-white uppercase text-sm tracking-wider"
                 >
-                  VEHICLE FLEET
+                  Faq
                 </a>
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/catalogue"
                   className="text-gray-400 hover:text-white uppercase text-sm tracking-wider"
                 >
-                  SERVICES
+                  Catalogue
                 </a>
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/rent"
                   className="text-gray-400 hover:text-white uppercase text-sm tracking-wider"
                 >
-                  PACKAGES
+                  Rent
                 </a>
               </li>
             </ul>

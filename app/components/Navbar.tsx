@@ -14,9 +14,9 @@ const Navbar = () => {
 
   const navItems = [
     { name: "About", path: "/" },
-    { name: "Vehicle Fleet", path: "/" },
-    { name: "Faq", path: "/faq" },
-    { name: "Packages", path: "/" },
+    { name: "Faq", path: "/" },
+    { name: "Catalogue", path: "/catalogue" },
+    { name: "Rent", path: "/rent" },
   ];
 
   return (
@@ -43,7 +43,7 @@ const Navbar = () => {
               <li key={name}>
                 <Link
                   href={path}
-                  className="block cursor-pointer hover:underline decoration-orange-600 decoration-2 transition-colors"
+                  className="block cursor-pointer hover:underline decoration-red-600 decoration-2 transition-colors"
                 >
                   {name}
                 </Link>
