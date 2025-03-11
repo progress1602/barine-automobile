@@ -24,7 +24,7 @@ function Index() {
       pickupLocation: string;
       dropoffLocation: string;
       totalPrice: number;
-      status: string;
+      status: "Pending" | "confirmed" | "completed" | "canceled";
     }[]
   >([]);
   const [loading, setLoading] = useState(true);
