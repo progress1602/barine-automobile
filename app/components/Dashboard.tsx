@@ -6,42 +6,36 @@ import { BookingCard } from "./BookingCard";
 import { toast, Toaster } from "sonner";
 
 const API_URL = "https://car-rental-system-wgtb.onrender.com/graphql";
+
 function Index() {
   const [user, setUser] = useState<{
     id: string;
     fullName: string;
     email: string;
   } | null>(null);
-  const [bookings, setBookings] = useState([
+
+  const [bookings, setBookings] = useState<
     {
-      id: "1",
-      car: "Tesla Model 3",
-      fullName: "John Doe",
-      startDate: "2024-04-15",
-      endDate: "2024-04-20",
-      pickupLocation: "Los Angeles Airport",
-      dropoffLocation: "San Francisco Airport",
-      totalPrice: 750,
-      status: "confirmed" as const,
-    },
-    {
-      id: "2",
-      car: "BMW X5",
-      fullName: "John Doe",
-      startDate: "2024-05-01",
-      endDate: "2024-05-05",
-      pickupLocation: "Miami Downtown",
-      dropoffLocation: "Miami Airport",
-      totalPrice: 600,
-      status: "completed" as const,
-    },
-  ]);
+      id: string;
+      car: string;
+      fullName: string;
+      startDate: string;
+      endDate: string;
+      pickupLocation: string;
+      dropoffLocation: string;
+      totalPrice: number;
+      status: string;
+    }[]
+  >([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(API_URL, {
+
+        // Fetch user profile
+        const userResponse = await fetch(API_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -51,18 +45,123 @@ function Index() {
             query: `query { me { id fullName email } }`,
           }),
         });
-        const { data } = await response.json();
-        setUser(data.me);
-      } catch {
-        toast.error("Failed to fetch user profile");
+
+        const userData = await userResponse.json();
+
+        if (userData.errors) {
+          throw new Error(userData.errors[0].message);
+        }
+
+        setUser(userData.data.me);
+
+        // Fetch user bookings
+        const bookingsResponse = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            query: `
+              query GetUserBookings {
+                getUserBookings {
+                  id
+                  car {
+                    make
+                    model
+                    price
+                  }
+                  startDate
+                  endDate
+                  status
+                  pickupLocation
+                  dropoffLocation
+                }
+              }
+            `,
+          }),
+        });
+
+        const bookingsData = await bookingsResponse.json();
+
+        if (bookingsData.errors) {
+          throw new Error(bookingsData.errors[0].message);
+        }
+
+        // Transform the booking data to match your component's expected format
+        const formattedBookings = bookingsData.data.getUserBookings.map(
+          (booking: {
+            id: string;
+            car: { make: string; model: string; price: number };
+            startDate: string;
+            endDate: string;
+            status: string;
+            pickupLocation: string;
+            dropoffLocation: string;
+          }) => ({
+            id: booking.id,
+            car: `${booking.car.make} ${booking.car.model}`,
+            fullName: user?.fullName || "",
+            startDate: booking.startDate,
+            endDate: booking.endDate,
+            pickupLocation: booking.pickupLocation,
+            dropoffLocation: booking.dropoffLocation,
+            totalPrice: booking.car.price, // Assuming this is the daily price multiplied by days
+            status: booking.status as "Pending" | "confirmed" | "completed",
+          })
+        );
+
+        setBookings(formattedBookings);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to fetch data");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchUserProfile();
-  }, []);
+    fetchData();
+  }, [user?.fullName]);
 
-  const handleCancelBooking = (id: string) => {
-    setBookings((prev) => prev.filter((booking) => booking.id !== id));
+  const handleCancelBooking = async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      // Call API to cancel booking
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          query: `
+            mutation CancelBooking($id: ID!) {
+              cancelBooking(id: $id) {
+                id
+                status
+              }
+            }
+          `,
+          variables: {
+            id,
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.errors) {
+        throw new Error(data.errors[0].message);
+      }
+
+      // Remove the cancelled booking from state
+      setBookings((prev) => prev.filter((booking) => booking.id !== id));
+      toast.success("Booking cancelled successfully");
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      toast.error("Failed to cancel booking");
+    }
   };
 
   return (
@@ -72,19 +171,27 @@ function Index() {
         {user && <UserProfile fullName={user.fullName} email={user.email} />}
         <div>
           <h2 className="text-2xl font-semibold mb-4">My Bookings</h2>
-          <div className="grid gap-6 md:grid-cols-2">
-            {bookings.map((booking) => (
-              <BookingCard
-                key={booking.id}
-                {...booking}
-                onCancel={handleCancelBooking}
-              />
-            ))}
-          </div>
-          {bookings.length === 0 && (
+          {loading ? (
             <div className="text-center py-12 bg-white rounded-lg">
-              <p className="text-muted-foreground">No bookings found</p>
+              <p className="text-muted-foreground">Loading bookings...</p>
             </div>
+          ) : (
+            <>
+              <div className="grid gap-6 md:grid-cols-2">
+                {bookings.map((booking) => (
+                  <BookingCard
+                    key={booking.id}
+                    {...booking}
+                    onCancel={handleCancelBooking}
+                  />
+                ))}
+              </div>
+              {bookings.length === 0 && (
+                <div className="text-center py-12 bg-white rounded-lg">
+                  <p className="text-muted-foreground">No bookings found</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

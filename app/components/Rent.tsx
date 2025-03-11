@@ -1,20 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
 import { toast, Toaster } from "sonner";
+import { useRouter } from "next/navigation"; // Add this import for routing
 
 const Index = () => {
   const [formData, setFormData] = useState({
@@ -26,6 +18,9 @@ const Index = () => {
     totalprice: "",
   });
   const [loading, setLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Add auth state
+  const router = useRouter(); // Initialize router
+
   interface Car {
     id: string;
     make: string;
@@ -36,9 +31,25 @@ const Index = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Check authentication status on mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signup"); // Redirect to signup if no token
+    } else {
+      setIsAuthenticated(true);
+      fetchCars(); // Only fetch cars if authenticated
+    }
+  }, [router]);
+
   // Fetch cars from the database
   const fetchCars = async () => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
       const query = `
         query {
           getCars {
@@ -56,11 +67,18 @@ const Index = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ query }),
         }
       );
+
+      if (response.status === 401) {
+        // Handle unauthorized response
+        localStorage.removeItem("token");
+        router.push("/signup");
+        return;
+      }
 
       const result = await response.json();
       if (result.errors) {
@@ -72,13 +90,10 @@ const Index = () => {
       setCars(result.data?.getCars || []);
     } catch (error) {
       console.error("Error fetching cars:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      toast.error("Authentication failed. Please sign up or log in.");
+      router.push("/signup");
     }
   };
-
-  useEffect(() => {
-    fetchCars();
-  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -86,7 +101,6 @@ const Index = () => {
       [field]: value,
     }));
 
-    // Calculate total price when dates change
     if (field === "startdate" || field === "enddate") {
       calculateTotalPrice(
         field === "startdate" ? value : formData.startdate,
@@ -125,6 +139,11 @@ const Index = () => {
 
     try {
       setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
       const mutation = `
       mutation {
         createBooking(
@@ -155,8 +174,6 @@ const Index = () => {
         }
       }
     `;
-      // bearer token for authentication
-      const token = localStorage.getItem("token");
 
       const response = await fetch(
         "https://car-rental-system-wgtb.onrender.com/graphql",
@@ -170,6 +187,13 @@ const Index = () => {
         }
       );
 
+      if (response.status === 401) {
+        // Handle unauthorized response
+        localStorage.removeItem("token");
+        router.push("/login");
+        return;
+      }
+
       const result = await response.json();
 
       if (result.errors) {
@@ -181,47 +205,45 @@ const Index = () => {
       const booking = result.data?.createBooking;
 
       if (booking) {
-        // Show success toast notification
         toast.success("Rental booking submitted successfully!", {
           position: "top-right",
-          duration: 3000, // 3 seconds
+          duration: 3000,
         });
 
-        // Redirect to dashboard after a short delay
         setTimeout(() => {
           window.location.href = "/dashboard";
-        }, 3000); // Redirect after 3 seconds
+        }, 3000);
       } else {
         toast.error("Failed to create booking. Please try again.");
       }
     } catch (error) {
       console.error("Error creating booking:", error);
-      toast.error("An error occurred. Please try again.");
+      toast.error("Authentication failed. Please sign up or log in.");
+      router.push("/signup");
     } finally {
       setLoading(false);
     }
   };
 
+  // Show loading state while checking authentication
+  if (!isAuthenticated) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <Toaster top-right />
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button className="bg-black hover:bg-gray-800 text-white px-8 py-6 rounded-xl text-lg font-medium tracking-wide transition-all duration-300 transform hover:scale-105">
-            Rent Now
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-white shadow-2xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-semibold tracking-tight">
-              Car Rental Form
-            </DialogTitle>
-            <DialogDescription className="text-gray-500 mt-5">
-              Please fill in your rental details below.
-            </DialogDescription>
-          </DialogHeader>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <Toaster position="top-right" />
+
+      <div className="max-w-md mx-auto p-4 pt-20">
+        <div className="bg-white shadow-2xl rounded-lg p-6">
+          <h2 className="text-2xl font-semibold tracking-tight mb-2">
+            Car Rental Form
+          </h2>
+          <p className="text-gray-500 mb-6">
+            Please fill in your rental details below.
+          </p>
           <ScrollArea className="h-[60vh] pr-4">
-            <div className="grid gap-6 py-4">
+            <div className="grid gap-6">
               <div className="grid gap-4">
                 <Label htmlFor="car" className="text-sm font-medium">
                   Car
@@ -325,7 +347,7 @@ const Index = () => {
               </div>
             </div>
           </ScrollArea>
-          <DialogFooter>
+          <div className="mt-6">
             <Button
               type="submit"
               className="w-full bg-black hover:bg-gray-800 text-white transition-colors"
@@ -334,9 +356,9 @@ const Index = () => {
             >
               {loading ? "Processing..." : "Rent"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

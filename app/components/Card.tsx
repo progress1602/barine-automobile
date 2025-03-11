@@ -5,32 +5,32 @@ const ServiceGrid = () => {
     {
       title: "Deals For Every Budget",
       description:
-        "Corporis suscipit laboriosa, nisi ut aliquid ex commodi vel conset? Et harum quidem est.",
+        "Find the perfect car rental at the right price! Whether you're looking for an affordable compact car, a family-friendly SUV, or a luxury ride, we offer deals to fit every budget. ",
     },
     {
       title: "Cleanliness & Comfort",
       description:
-        "Corporis suscipit laboriosa, nisi ut aliquid ex commodi vel conset? Et harum quidem est.",
+        "Enjoy a spotless and well-maintained ride with our car rentals. Every vehicle is thoroughly cleaned and sanitized for your safety and comfort. ",
     },
     {
       title: "Best Prices Garanteed",
       description:
-        "Corporis suscipit laboriosa, nisi ut aliquid ex commodi vel conset? Et harum quidem est.",
+        "Get the best deals on car rentals with our price match guarantee! We offer competitive rates to ensure you get the most value for your money.",
     },
     {
       title: "24/7 Order Available",
       description:
-        "Corporis suscipit laboriosa, nisi ut aliquid ex commodi vel conset? Et harum quidem est.",
+        "Rent a car anytime, anywhere! Our service is available 24/7, ensuring you can book a vehicle whenever you need it.",
     },
     {
       title: "Professional Drivers",
       description:
-        "Corporis suscipit laboriosa, nisi ut aliquid ex commodi vel conset? Et harum quidem est.",
+        "Ride with confidence knowing our experienced and courteous drivers are here to provide a safe and comfortable journey. ",
     },
     {
       title: "Fast Car Delivery",
       description:
-        "Corporis suscipit laboriosa, nisi ut aliquid ex commodi vel conset? Et harum quidem est.",
+        "Get on the road quickly with our fast and efficient car delivery service. Whether you need a rental at your doorstep, hotel, or airport, we ensure timely delivery so you can start your journey without delay.",
     },
   ];
 
@@ -60,9 +60,9 @@ const ServiceGrid = () => {
               <p className="text-gray-700 leading-relaxed">
                 {service.description}
               </p>
-              <button className="flex items-center text-red-600 hover:underline font-semibold decoration-red-600  mt-4 uppercase text-sm tracking-wider ">
+              {/* <button className="flex items-center text-red-600 hover:underline font-semibold decoration-red-600  mt-4 uppercase text-sm tracking-wider ">
                 + VIEW MORE
-              </button>
+              </button> */}
             </div>
           </div>
         ))}
@@ -87,9 +87,9 @@ const ServiceGrid = () => {
               <p className="text-gray-700 leading-relaxed">
                 {service.description}
               </p>
-              <button className="flex items-center text-red-600 hover:underline font-semibold decoration-red-600  mt-4 uppercase text-sm tracking-wider">
+              {/* <button className="flex items-center text-red-600 hover:underline font-semibold decoration-red-600  mt-4 uppercase text-sm tracking-wider">
                 + VIEW MORE
-              </button>
+              </button> */}
             </div>
           </div>
         ))}

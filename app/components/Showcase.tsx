@@ -7,61 +7,94 @@ import { Star } from "lucide-react";
 const CarSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const cars = [
-    {
-      name: "Rolls Royce Ghost 3",
-      price: "120",
-      description: "Luxury and elegance combined.",
-      image: "/slide2.jpg",
-    },
-    {
-      name: "Ferrari 365 Daytona",
-      price: "180",
-      description: "Speed and style in one package.",
-      image: "/slide3.jpg",
-    },
-    {
-      name: "Range Rover Evoque",
-      price: "180",
-      description: "A blend of comfort and power.",
-      image: "/slide4.jpg",
-    },
-    {
-      name: "Bentley Continental",
-      price: "160",
-      description: "Classic British luxury redefined.",
-      image: "/slide5.jpg",
-    },
-    {
-      name: "Porsche 911 GT3",
-      price: "200",
-      description: "A true track-ready sports car.",
-      image: "/slide1.jpg",
-    },
-    {
-      name: "Mercedes AMG GT",
-      price: "170",
-      description: "Performance and luxury combined.",
-      image: "/slide6.jpeg",
-    },
-  ];
+  interface Car {
+    id: string;
+    make: string;
+    model: string;
+    price: string;
+    imageUrl: string;
+  }
+
+  const [cars, setCars] = useState<Car[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // ⏳ Slide interval set to 5 seconds
+    const fetchCars = async () => {
+      try {
+        const response = await fetch(
+          "https://car-rental-system-wgtb.onrender.com/graphql",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              query: `
+              query {
+                getCars {
+                  id
+                  make
+                  model
+                  price
+                  imageUrl
+                }
+              }
+            `,
+            }),
+          }
+        );
+
+        const result = await response.json();
+        if (result.errors) {
+          throw new Error(result.errors[0].message);
+        }
+        setCars(result.data.getCars);
+        setLoading(false);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unknown error occurred");
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchCars();
+  }, []);
+
+  useEffect(() => {
+    if (cars.length === 0) return;
+
     const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 3) % cars.length);
-    }, 5000); // <-- this to change when it scrolls 5000 (5 sec)
+      setCurrentIndex((prevIndex) => {
+        const nextIndex = prevIndex + 3;
+        // Stop at the last set of cars instead of wrapping around
+        return nextIndex >= cars.length ? 0 : nextIndex;
+      });
+    }, 5000);
 
     return () => clearInterval(timer);
   }, [cars.length]);
 
-  const visibleCars = [...cars, ...cars].slice(currentIndex, currentIndex + 3);
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  // Show up to 3 cars starting from currentIndex, without exceeding the array length
+  const visibleCars = cars.slice(currentIndex, currentIndex + 3);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {visibleCars.map((car, index) => (
-          <CarCard key={index} {...car} />
+        {visibleCars.map((car) => (
+          <CarCard
+            key={car.id} // Unique key from database
+            make={car.make}
+            model={car.model}
+            price={car.price}
+            imageUrl={car.imageUrl}
+          />
         ))}
       </div>
     </div>
@@ -69,43 +102,33 @@ const CarSlider = () => {
 };
 
 interface CarCardProps {
-  name: string;
+  make: string;
+  model: string;
   price: string;
-  description: string;
-  image: string;
+  imageUrl: string;
 }
 
-const CarCard: React.FC<CarCardProps> = ({
-  name,
-  price,
-  description,
-  image,
-}) => (
+const CarCard: React.FC<CarCardProps> = ({ make, model, price, imageUrl }) => (
   <div className="bg-[#FAF9F6] p-8 flex flex-col items-center">
     <Image
-      src={image} //  each car has its own image
-      alt={name}
+      src={imageUrl}
+      alt={make}
       width={200}
       height={200}
       className="w-full h-48 object-contain mb-6"
     />
-    <h3 className="text-2xl font-medium text-gray-900 mb-2">{name}</h3>
+    <h3 className="text-2xl font-medium text-gray-900 mb-2">{make}</h3>
     <div className="flex gap-1 mb-4">
       {[...Array(5)].map((_, index) => (
         <Star key={index} className="w-5 h-5 fill-red-600" />
       ))}
     </div>
-    <p className="text-gray-600 text-center mb-4">{description}</p>
+    <p className="text-gray-600 text-center mb-4">{model}</p>
     <div className="flex items-baseline mb-6">
       <span className="text-4xl font-light">£</span>
       <span className="text-5xl font-light">{price}</span>
       <span className="text-gray-600 ml-2">/ Per day</span>
     </div>
-    <a href="/catalogue">
-      <button className="border border-red-600 rounded-2xl font-normal text-black py-3 px-6 w-full hover:bg-red-600 hover:text-black transition-colors">
-        + MORE DETAILS
-      </button>
-    </a>
   </div>
 );
 

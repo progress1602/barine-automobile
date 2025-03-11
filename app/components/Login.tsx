@@ -42,6 +42,7 @@ const LoginPage = () => {
       email: formData.email,
       password: formData.password,
     };
+    
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(

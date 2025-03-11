@@ -13,7 +13,7 @@ interface BookingProps {
   pickupLocation: string;
   dropoffLocation: string;
   totalPrice: number;
-  status: "Pending" | "confirmed" | "completed";
+  status: "Pending" | "confirmed" | "completed" | "canceled"; // Ensure "canceled" is included
   onCancel: (id: string) => void;
 }
 
@@ -29,18 +29,58 @@ export const BookingCard = ({
   status,
   onCancel,
 }: BookingProps) => {
+  // Debugging: Log the status to verify its value
+  console.log("Booking Status:", status);
+
   const handleCancel = () => {
+    const query = `
+      mutation CancelBooking($id: ID!) {
+        cancelBooking(id: $id) {
+          id
+          status
+          startDate
+          endDate
+          pickupLocation
+          dropoffLocation
+          totalPrice
+          updatedAt
+        }
+      }
+    `;
+
+    const variables = {
+      id: id, // Use the `id` prop passed to the component
+    };
+
+    const token = localStorage.getItem("token");
     toast.promise(
-      new Promise((resolve) => {
-        setTimeout(() => {
-          onCancel(id);
-          resolve(true);
-        }, 1000);
-      }),
+      fetch("https://car-rental-system-wgtb.onrender.com/graphql", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify({
+          query,
+          variables,
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to cancel booking");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          if (data.errors) {
+            throw new Error(data.errors[0].message);
+          }
+          onCancel(id); // Call the `onCancel` function to update the UI
+        }),
       {
         loading: "Cancelling booking...",
         success: "Booking cancelled successfully",
-        error: "Failed to cancel booking",
+        error: (error) => `Failed to cancel booking: ${error.message}`,
       }
     );
   };
@@ -89,8 +129,8 @@ export const BookingCard = ({
           variant="destructive"
           size="sm"
           onClick={handleCancel}
-          disabled={status === "completed"}
-          className="bg-red-600 hover:bg-red-700 hover:text-white"
+          disabled={status === "completed" || status === "canceled"} // Disable if status is "completed" or "canceled"
+          className="bg-red-600 hover:bg-red-700 hover:text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           Cancel Booking
         </Button>
