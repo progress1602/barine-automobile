@@ -75,7 +75,7 @@ export const BookingCard = ({
           if (data.errors) {
             throw new Error(data.errors[0].message);
           }
-          onCancel(id); // Call the `onCancel` function to update the UI
+          onCancel(id); 
         }),
       {
         loading: "Cancelling booking...",
@@ -130,11 +130,11 @@ export const BookingCard = ({
           variant="destructive"
           size="sm"
           onClick={handleCancel}
-          disabled={status === "completed" || status === "canceled"} 
-          className="bg-red-600 hover:bg-red-700 hover:text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
-          Cancel Booking
-        </Button>
+          disabled={status !== "Pending"} 
+          className="bg-red-600 hover:bg-red-700 hover:text-white disabled:bg-red-400 disabled:cursor-not-allowed"
+          >
+            Cancel Booking
+          </Button>
       </div>
     </Card>
   );
