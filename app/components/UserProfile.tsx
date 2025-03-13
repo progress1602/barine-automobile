@@ -33,7 +33,7 @@ export const UserProfile = ({ fullName, email }: UserProfileProps) => {
         </div>
         <div className="flex gap-4">
           <Button variant="outline" size="sm" onClick={handleGoHome}>
-            Go home
+            Go homes
           </Button>
         <a href="/login">
           <Button variant="outline" size="sm" onClick={handleLogout}>
