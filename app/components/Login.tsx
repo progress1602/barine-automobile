@@ -65,11 +65,11 @@ const LoginPage = () => {
 
       console.log("Login successful:", result.data);
 
-      // Store the token in localStorage or your preferred storage method
       if (result.data?.login?.token) {
         localStorage.setItem("token", result.data.login.token);
-        toast.success("successful");
-        router.push("/dashboard"); // Redirect to dashboard page after successful login
+        window.dispatchEvent(new Event("authChange"));
+        toast.success("Login successful");
+        router.push("/dashboard");
       }
     } catch (err: unknown) {
       if (err instanceof Error) {

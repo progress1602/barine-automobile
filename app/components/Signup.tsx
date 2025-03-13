@@ -44,7 +44,7 @@ const SignupPage = () => {
             id
             fullName
             email
-            role
+             role
           }
         }
       }

@@ -49,7 +49,8 @@ const CarSlider = () => {
         if (result.errors) {
           throw new Error(result.errors[0].message);
         }
-        setCars(result.data.getCars);
+        // Limit to only first 6 cars from the API response
+        setCars(result.data.getCars.slice(0, 6));
         setLoading(false);
       } catch (err) {
         if (err instanceof Error) {
@@ -69,9 +70,8 @@ const CarSlider = () => {
 
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => {
-        const nextIndex = prevIndex + 3;
-        // Stop at the last set of cars instead of wrapping around
-        return nextIndex >= cars.length ? 0 : nextIndex;
+        // Toggle between 0 and 3 only
+        return prevIndex === 0 ? 3 : 0;
       });
     }, 5000);
 
@@ -81,7 +81,7 @@ const CarSlider = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  // Show up to 3 cars starting from currentIndex, without exceeding the array length
+  // Show 3 cars at a time from currentIndex
   const visibleCars = cars.slice(currentIndex, currentIndex + 3);
 
   return (
@@ -89,7 +89,7 @@ const CarSlider = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {visibleCars.map((car) => (
           <CarCard
-            key={car.id} // Unique key from database
+            key={car.id}
             make={car.make}
             model={car.model}
             price={car.price}
