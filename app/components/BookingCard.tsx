@@ -94,7 +94,7 @@ export const BookingCard = ({
         </div>
         <Badge
           variant={status === "completed" ? "secondary" : "default"}
-          className="bg-yellow-200"
+          className="bg-yellow-300 hover:bg-yellow-300"
         >
           {status}
         </Badge>
@@ -125,11 +125,12 @@ export const BookingCard = ({
 
       <div className="flex justify-between items-center pt-4">
         <p className="font-semibold">Total: €{totalPrice}</p>
+        <button className="text-white font-medium h-8 w-32 rounded-lg text-sm bg-yellow-400 hover:bg-yellow-300">Make Payment</button>
         <Button
           variant="destructive"
           size="sm"
           onClick={handleCancel}
-          disabled={status === "completed" || status === "canceled"} // Disable if status is "completed" or "canceled"
+          disabled={status === "completed" || status === "canceled"} 
           className="bg-red-600 hover:bg-red-700 hover:text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           Cancel Booking
