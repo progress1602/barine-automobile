@@ -88,7 +88,7 @@ function Index() {
           throw new Error(bookingsData.errors[0].message);
         }
 
-        // Transform the booking data to match your component's expected format
+      
         const formattedBookings = bookingsData.data.getUserBookings.map(
           (booking: {
             id: string;
@@ -106,7 +106,7 @@ function Index() {
             endDate: booking.endDate,
             pickupLocation: booking.pickupLocation,
             dropoffLocation: booking.dropoffLocation,
-            totalPrice: booking.car.price, // Assuming this is the daily price multiplied by days
+            totalPrice: booking.car.price, 
             status: booking.status as "Pending" | "confirmed" | "completed",
           })
         );

@@ -13,7 +13,7 @@ interface BookingProps {
   pickupLocation: string;
   dropoffLocation: string;
   totalPrice: number;
-  status: "Pending" | "confirmed" | "completed" | "canceled"; // Ensure "canceled" is included
+  status: "Pending" | "confirmed" | "completed" | "canceled"; 
   onCancel: (id: string) => void;
 }
 
@@ -29,8 +29,6 @@ export const BookingCard = ({
   status,
   onCancel,
 }: BookingProps) => {
-  // Debugging: Log the status to verify its value
-  console.log("Booking Status:", status);
 
   const handleCancel = () => {
     const query = `
@@ -130,7 +128,7 @@ export const BookingCard = ({
           variant="destructive"
           size="sm"
           onClick={handleCancel}
-          disabled={status !== "Pending"} 
+          disabled={status != "Pending"} 
           className="bg-red-600 hover:bg-red-700 hover:text-white disabled:bg-red-400 disabled:cursor-not-allowed"
           >
             Cancel Booking

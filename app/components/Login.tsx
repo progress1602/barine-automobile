@@ -3,13 +3,14 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";
+import { EyeOff, Eye } from 'lucide-react';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -18,6 +19,10 @@ const LoginPage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -110,8 +115,8 @@ const LoginPage = () => {
               onChange={handleChange}
             />
           </div>
-          {/* Password Input */}
-          <div>
+          {/* Password Input with Toggle */}
+          <div className="relative">
             <label
               htmlFor="password"
               className="block text-gray-700 font-medium mb-2"
@@ -119,7 +124,7 @@ const LoginPage = () => {
               Password
             </label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               name="password"
               placeholder="Enter your password"
@@ -128,12 +133,19 @@ const LoginPage = () => {
               value={formData.password}
               onChange={handleChange}
             />
+            <button
+              type="button"
+              className="absolute right-3 top-12 mr-2 text-gray-600 hover:text-gray-800 focus:outline-none"
+              onClick={togglePasswordVisibility}
+            >
+              {showPassword ? <Eye className="w-4 h-4 text-black" /> : <EyeOff className="w-4 h-4" /> }
+            </button>
           </div>
-          <a href="/forgottenpassword">
+          {/* <a href="/forgottenpassword">
             <div className="hover:underline ml-[13rem] mt-2">
               Forgotten Password?
             </div>
-          </a>
+          </a> */}
 
           {/* Submit Button */}
           <button

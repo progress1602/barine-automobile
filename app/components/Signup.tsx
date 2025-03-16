@@ -96,7 +96,7 @@ const SignupPage = () => {
   useEffect(() => {
     if (success) {
       setTimeout(() => {
-        router.push("/login");
+        router.push("/verifyemail");
       }, 2000);
     }
   }, [success, router]);
