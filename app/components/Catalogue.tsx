@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const API_URL = "https://car-rental-system-wgtb.onrender.com/graphql";
 
@@ -32,7 +33,7 @@ const CarCard: React.FC<Car> = ({ make, price, model, imageUrl }) => (
       alt={make}
       width={200}
       height={200}
-      className="w-full h-48 object-contain mb-6"
+      className="w-full h-48 rounded-2xl object-contain mb-6"
     />
     <h3 className="text-2xl font-medium text-gray-900 mb-3">{make}</h3>
     <p className="text-gray-600 text-center mb-4">{model}</p>
@@ -91,11 +92,13 @@ const CarCatalogue = () => {
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">
+      <Link href="/rent">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {cars.map((car) => (
           <CarCard key={car.id} {...car} />
         ))}
       </div>
+      </Link>
     </section>
   );
 };
