@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer className="bg-[#0A1012] text-white py-16 mt-10">
       <div className="container mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Brand Section */}
           <div>
             <h2 className="text-red-600 text-xl mb-4">
@@ -24,9 +24,9 @@ const Footer = () => {
               comfort, and reliability with our top-tier vehicles and
               professional drivers. Wherever you go, we drive excellence.
             </p>
-            <p className="text-gray-400 uppercase text-sm tracking-wider">
+            {/* <p className="text-gray-400 uppercase text-sm tracking-wider">
               CALL CENTER: +234 901 645 832
-            </p>
+            </p> */}
           </div>
 
           {/* Quick Links */}
@@ -69,7 +69,7 @@ const Footer = () => {
           </div>
 
           {/* Our Services */}
-          <div>
+          {/* <div>
             <h3 className="text-red-600 text-xl mb-6">Our Services</h3>
             <ul className="space-y-4">
               <li>
@@ -105,7 +105,7 @@ const Footer = () => {
                 </a>
               </li>
             </ul>
-          </div>
+          </div> */}
         </div>
 
         {/* Copyright */}
