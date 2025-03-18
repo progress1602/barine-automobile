@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 export default function CookieNotification() {
   const [isVisible, setIsVisible] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
+  const [showFullText, setShowFullText] = useState(false);
   
   const [preferences, setPreferences] = useState({
     essential: true,
@@ -83,7 +84,7 @@ export default function CookieNotification() {
     <div 
       className={`
         fixed bg-gray-400 rounded-sm flex items-end justify-end 
-        bottom-4 right-4 max-w-md z-50
+        bottom-4 right-4 max-w-md w-full z-50
         animate-slide-up
       `}
     >
@@ -104,7 +105,7 @@ export default function CookieNotification() {
         }
       `}</style>
 
-      <div className="p-6 relative">
+      <div className="p-6 relative w-full">
         <button
           onClick={handleClose}
           className="absolute top-1 right-1 text-white transition-colors hover:text-gray-200"
@@ -125,7 +126,29 @@ export default function CookieNotification() {
           </svg>
         </button>
 
-        <div className="flex gap-2 flex-wrap">
+        <div className="text-white mb-4">
+          <p>
+            This site uses cookies to enhance your experience. Some cookies are essential for functionality, while others help us analyze site usage and personalize content.
+            {!showFullText && (
+              <button
+                onClick={() => setShowFullText(true)}
+                className="text-blue-200 hover:text-blue-100 underline ml-1"
+              >
+                Read More
+              </button>
+            )}
+          </p>
+          
+          {showFullText && (
+            <div className="mt-2 text-white">
+              <p>
+                European Union laws require us to inform EU visitors about cookies and data collection. We use Google cookies (including Analytics and AdSense) and other data collected by Google. If you add third-party features, additional cookies may apply, and you’re responsible for ensuring compliance with applicable laws.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2 flex-wrap justify-center items-center">
           <button
             onClick={handleAcceptAll}
             className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-300 transform hover:scale-105"
