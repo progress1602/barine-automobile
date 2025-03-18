@@ -57,14 +57,7 @@ const Footer = () => {
                   Catalogue
                 </a>
               </li>
-              <li>
-                <a
-                  href="/rent"
-                  className="text-gray-400 hover:text-white uppercase text-sm tracking-wider"
-                >
-                  Rent
-                </a>
-              </li>
+             
             </ul>
           </div>
 

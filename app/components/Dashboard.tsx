@@ -13,6 +13,7 @@ function Index() {
     fullName: string;
     email: string;
   } | null>(null);
+  
 
   const [bookings, setBookings] = useState<
     {
@@ -180,6 +181,7 @@ function Index() {
               <div className="grid gap-6 md:grid-cols-2">
                 {bookings.map((booking) => (
                   <BookingCard
+                  
                     key={booking.id}
                     {...booking}
                     onCancel={handleCancelBooking}

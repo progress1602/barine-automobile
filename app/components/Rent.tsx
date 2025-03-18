@@ -4,11 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 import { toast, Toaster } from "sonner";
-import { useRouter } from "next/navigation"; // Add this import for routing
+import { useRouter } from "next/navigation";
 
-const Index = () => {
+const CarRentalModal = () => {
   const [formData, setFormData] = useState({
     car: "",
     startdate: "",
@@ -18,8 +25,9 @@ const Index = () => {
     totalprice: "",
   });
   const [loading, setLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Add auth state
-  const router = useRouter(); // Initialize router
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
   interface Car {
     id: string;
@@ -31,24 +39,20 @@ const Index = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Check authentication status on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/signup"); // Redirect to signup if no token
+      router.push("/signup");
     } else {
       setIsAuthenticated(true);
-      fetchCars(); // Only fetch cars if authenticated
+      fetchCars();
     }
   }, [router]);
 
-  // Fetch cars from the database
   const fetchCars = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
+      if (!token) throw new Error("No authentication token found");
 
       const query = `
         query {
@@ -74,7 +78,6 @@ const Index = () => {
       );
 
       if (response.status === 401) {
-        // Handle unauthorized response
         localStorage.removeItem("token");
         router.push("/signup");
         return;
@@ -82,14 +85,12 @@ const Index = () => {
 
       const result = await response.json();
       if (result.errors) {
-        console.error("GraphQL errors:", result.errors);
         toast.error(result.errors[0]?.message || "Failed to fetch cars");
         return;
       }
 
       setCars(result.data?.getCars || []);
-    } catch (error) {
-      console.error("Error fetching cars:", error);
+    } catch {
       toast.error("Authentication failed. Please sign up or log in.");
       router.push("/signup");
     }
@@ -140,40 +141,29 @@ const Index = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
+      if (!token) throw new Error("No authentication token found");
 
       const mutation = `
-      mutation {
-        createBooking(
-          carId: "${formData.car}"
-          startDate: "${formData.startdate}"
-          endDate: "${formData.enddate}"
-          pickupLocation: "${formData.pickuplocation}"
-          dropoffLocation: "${formData.dropofflocation}"
-        ) {
-          id
-          status
-          totalPrice
-          car {
+        mutation {
+          createBooking(
+            carId: "${formData.car}"
+            startDate: "${formData.startdate}"
+            endDate: "${formData.enddate}"
+            pickupLocation: "${formData.pickuplocation}"
+            dropoffLocation: "${formData.dropofflocation}"
+          ) {
             id
-            make
-            model
-            price
+            status
+            totalPrice
+            car { id make model price }
+            user { id fullName email }
+            startDate
+            endDate
+            pickupLocation
+            dropoffLocation
           }
-          user {
-            id
-            fullName
-            email
-          }
-          startDate
-          endDate
-          pickupLocation
-          dropoffLocation
         }
-      }
-    `;
+      `;
 
       const response = await fetch(
         "https://car-rental-system-wgtb.onrender.com/graphql",
@@ -188,7 +178,6 @@ const Index = () => {
       );
 
       if (response.status === 401) {
-        // Handle unauthorized response
         localStorage.removeItem("token");
         router.push("/login");
         return;
@@ -197,7 +186,6 @@ const Index = () => {
       const result = await response.json();
 
       if (result.errors) {
-        console.error("GraphQL errors:", result.errors);
         toast.error(result.errors[0]?.message || "Failed to create booking");
         return;
       }
@@ -205,19 +193,13 @@ const Index = () => {
       const booking = result.data?.createBooking;
 
       if (booking) {
-        toast.success("Rental booking submitted successfully!", {
-          position: "top-right",
-          duration: 3000,
-        });
-
+        toast.success("Rental booking submitted successfully!");
+        setIsOpen(false);
         setTimeout(() => {
           window.location.href = "/dashboard";
         }, 3000);
-      } else {
-        toast.error("Failed to create booking. Please try again.");
       }
-    } catch (error) {
-      console.error("Error creating booking:", error);
+    } catch {
       toast.error("Authentication failed. Please sign up or log in.");
       router.push("/signup");
     } finally {
@@ -225,39 +207,39 @@ const Index = () => {
     }
   };
 
-  // Show loading state while checking authentication
-  if (!isAuthenticated) {
-    return <div>Loading...</div>;
-  }
+  if (!isAuthenticated) return <div>Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <>
       <Toaster position="top-right" />
-
-      <div className="max-w-md mx-auto p-4 pt-20">
-        <div className="bg-white shadow-2xl rounded-lg p-6">
-          <h2 className="text-2xl font-semibold tracking-tight mb-2">
-            Car Rental Form
-          </h2>
-          <p className="text-gray-500 mb-6">
-            Please fill in your rental details below.
-          </p>
-          <ScrollArea className="h-[60vh] pr-4">
-            <div className="grid gap-6">
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button className="bg-black hover:bg-gray-800 text-white">
+            Rent a Car
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-semibold">
+              Car Rental Form
+            </DialogTitle>
+            <p className="text-gray-500">
+              Please fill in your rental details below.
+            </p>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="grid gap-6 py-4">
               <div className="grid gap-4">
-                <Label htmlFor="car" className="text-sm font-medium">
-                  Car
-                </Label>
+                <Label htmlFor="car">Car</Label>
                 <div className="relative">
                   <Input
                     id="car"
                     placeholder="Search for a car"
-                    className="border-gray-200"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   {searchTerm && (
-                    <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    <div className="absolute z-10 mt-2 w-full bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto">
                       {cars
                         .filter(
                           (car) =>
@@ -289,13 +271,10 @@ const Index = () => {
                 </div>
               </div>
               <div className="grid gap-4">
-                <Label htmlFor="startdate" className="text-sm font-medium">
-                  Start Date
-                </Label>
+                <Label htmlFor="startdate">Start Date</Label>
                 <Input
                   id="startdate"
                   type="date"
-                  className="border-gray-200"
                   value={formData.startdate}
                   onChange={(e) =>
                     handleInputChange("startdate", e.target.value)
@@ -303,25 +282,19 @@ const Index = () => {
                 />
               </div>
               <div className="grid gap-4">
-                <Label htmlFor="enddate" className="text-sm font-medium">
-                  End Date
-                </Label>
+                <Label htmlFor="enddate">End Date</Label>
                 <Input
                   id="enddate"
                   type="date"
-                  className="border-gray-200"
                   value={formData.enddate}
                   onChange={(e) => handleInputChange("enddate", e.target.value)}
                 />
               </div>
               <div className="grid gap-4">
-                <Label htmlFor="pickuplocation" className="text-sm font-medium">
-                  Pickup Location
-                </Label>
+                <Label htmlFor="pickuplocation">Pickup Location</Label>
                 <Input
                   id="pickuplocation"
                   placeholder="Enter pickup location"
-                  className="border-gray-200"
                   value={formData.pickuplocation}
                   onChange={(e) =>
                     handleInputChange("pickuplocation", e.target.value)
@@ -329,16 +302,10 @@ const Index = () => {
                 />
               </div>
               <div className="grid gap-4">
-                <Label
-                  htmlFor="dropofflocation"
-                  className="text-sm font-medium"
-                >
-                  Drop-off Location
-                </Label>
+                <Label htmlFor="dropofflocation">Drop-off Location</Label>
                 <Input
                   id="dropofflocation"
                   placeholder="Enter drop-off location"
-                  className="border-gray-200"
                   value={formData.dropofflocation}
                   onChange={(e) =>
                     handleInputChange("dropofflocation", e.target.value)
@@ -347,20 +314,17 @@ const Index = () => {
               </div>
             </div>
           </ScrollArea>
-          <div className="mt-6">
-            <Button
-              type="submit"
-              className="w-full bg-black hover:bg-gray-800 text-white transition-colors"
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? "Processing..." : "Rent"}
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+          <Button
+            className="w-full bg-black hover:bg-gray-800 text-white"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? "Processing..." : "Rent"}
+          </Button>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
-export default Index;
+export default CarRentalModal;

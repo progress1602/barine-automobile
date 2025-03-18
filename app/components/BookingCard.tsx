@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
+
 interface BookingProps {
   id: string;
   car: string;
@@ -13,7 +14,8 @@ interface BookingProps {
   pickupLocation: string;
   dropoffLocation: string;
   totalPrice: number;
-  status: "Pending" | "confirmed" | "completed" | "canceled"; 
+  // isDiabled: boolean;
+  status: string; 
   onCancel: (id: string) => void;
 }
 
@@ -27,6 +29,7 @@ export const BookingCard = ({
   dropoffLocation,
   totalPrice,
   status,
+  // isDiabled,
   onCancel,
 }: BookingProps) => {
 
@@ -121,18 +124,18 @@ export const BookingCard = ({
         </div>
       </div>
 
-      <div className="flex justify-between items-center pt-4">
+      <div className="flex justify-between space-x-3 items-center pt-4">
         <p className="font-semibold">Total: €{totalPrice}</p>
-        <button className="text-white font-medium h-8 w-32 rounded-lg text-sm bg-yellow-400 hover:bg-yellow-300">Make Payment</button>
-        <Button
-          variant="destructive"
-          size="sm"
+        <button className="text-white font-medium h-8 w-32 rounded-lg text-sm bg-yellow-400 disabled:bg-yellow-300 disabled:cursor-not-allowed hover:bg-yellow-500" disabled={status != "PENDING"}>Make Payment</button>
+        <button
+          // variant="destructive"
+          // size="sm"
           onClick={handleCancel}
-          disabled={status != "Pending"} 
-          className="bg-red-600 hover:bg-red-700 hover:text-white disabled:bg-red-400 disabled:cursor-not-allowed"
+          disabled={status != "PENDING"} 
+          className="text-white font-medium h-8 w-32 rounded-lg text-sm bg-red-600 hover:bg-red-700  disabled:bg-red-400 disabled:cursor-not-allowed"
           >
             Cancel Booking
-          </Button>
+          </button>
       </div>
     </Card>
   );
