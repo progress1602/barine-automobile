@@ -88,22 +88,6 @@ export default function CookieNotification() {
         animate-slide-up
       `}
     >
-      <style jsx>{`
-        @keyframes slideUp {
-          0% {
-            transform: translateY(100%);
-            opacity: 0;
-          }
-          100% {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-        
-        .animate-slide-up {
-          animation: slideUp 0.8s ease-out forwards;
-        }
-      `}</style>
 
       <div className="p-6 relative w-full">
         <button
