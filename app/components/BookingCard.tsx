@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Calendar, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
@@ -14,7 +13,6 @@ interface BookingProps {
   pickupLocation: string;
   dropoffLocation: string;
   totalPrice: number;
-  // isDiabled: boolean;
   status: string; 
   onCancel: (id: string) => void;
 }
@@ -29,7 +27,6 @@ export const BookingCard = ({
   dropoffLocation,
   totalPrice,
   status,
-  // isDiabled,
   onCancel,
 }: BookingProps) => {
 
@@ -128,8 +125,6 @@ export const BookingCard = ({
         <p className="font-semibold">Total: €{totalPrice}</p>
         <button className="text-white font-medium h-8 w-32 rounded-lg text-sm bg-yellow-400 disabled:bg-yellow-300 disabled:cursor-not-allowed hover:bg-yellow-500" disabled={status != "PENDING"}>Make Payment</button>
         <button
-          // variant="destructive"
-          // size="sm"
           onClick={handleCancel}
           disabled={status != "PENDING"} 
           className="text-white font-medium h-8 w-32 rounded-lg text-sm bg-red-600 hover:bg-red-700  disabled:bg-red-400 disabled:cursor-not-allowed"
