@@ -316,7 +316,7 @@ const CarRentalModal = () => {
             </div>
           </ScrollArea>
           <Button
-            className="w-full bg-black hover:bg-gray-800 text-white"
+            className="w-full bg-black hover:bg-gray-900 text-white"
             onClick={handleSubmit}
             disabled={loading}
           >
