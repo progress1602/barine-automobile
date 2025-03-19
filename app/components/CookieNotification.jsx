@@ -84,7 +84,7 @@ export default function CookieNotification() {
     <div 
       className={`
         fixed bg-gray-400 rounded-sm flex items-end justify-end 
-        bottom-4 right-4 max-w-md w-full z-50
+        bottom-4 md:bottom-4 lg:bottom-4 right-4 max-w-sm w-full z-50
         animate-slide-up
       `}
     >

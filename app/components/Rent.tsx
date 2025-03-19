@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react"; // Added useCallback
 import { toast, Toaster } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -39,17 +39,8 @@ const CarRentalModal = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/signup");
-    } else {
-      setIsAuthenticated(true);
-      fetchCars();
-    }
-  }, [router]);
-
-  const fetchCars = async () => {
+  // Memoize fetchCars with useCallback
+  const fetchCars = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No authentication token found");
@@ -94,7 +85,17 @@ const CarRentalModal = () => {
       toast.error("Authentication failed. Please sign up or log in.");
       router.push("/signup");
     }
-  };
+  }, [router]); // router is a dependency of fetchCars
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signup");
+    } else {
+      setIsAuthenticated(true);
+      fetchCars();
+    }
+  }, [router, fetchCars]); // Include fetchCars in the dependency array
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({

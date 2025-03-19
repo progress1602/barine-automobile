@@ -31,13 +31,13 @@ export const UserProfile = ({ fullName, email }: UserProfileProps) => {
             <p className="text-sm text-muted-foreground">{email}</p>
           </div>
         </div>
-        <div className="flex gap-4">
+        <div className="ml-4 md:flex md:gap-4 lg:flex lg:gap-4">
           <Button variant="outline" size="sm" onClick={handleGoHome}>
           <House className="h-4 w-4 mr-1"/>
             Go home
           </Button>
         <a href="/login">
-          <Button variant="outline" size="sm" onClick={handleLogout}>
+          <Button variant="outline" size="sm" onClick={handleLogout} className="mt-2 md:mt-0 lg:mt-0">
             <LogOut className="h-4 w-4 mr-2" />
             Logout
           </Button>
