@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin } from "lucide-react";
 import { toast } from "sonner";
-
+import { useState } from "react";
 
 interface BookingProps {
   id: string;
@@ -13,7 +13,7 @@ interface BookingProps {
   pickupLocation: string;
   dropoffLocation: string;
   totalPrice: number;
-  status: string; 
+  status: string;
   onCancel: (id: string) => void;
 }
 
@@ -29,16 +29,17 @@ export const BookingCard = ({
   status,
   onCancel,
 }: BookingProps) => {
+  const [paymentReference, setPaymentReference] = useState<string | null>(null);
 
   const handleCancel = () => {
-    const query = `
+    const cancelQuery = `
       mutation CancelBooking($id: ID!) {
         cancelBooking(id: $id) {
           id
           status
           startDate
           endDate
-          pickupLocation
+          pickupLocation     
           dropoffLocation
           totalPrice
           updatedAt
@@ -46,11 +47,9 @@ export const BookingCard = ({
       }
     `;
 
-    const variables = {
-      id: id, // Use the `id` prop passed to the component
-    };
-
+    const variables = { id };
     const token = localStorage.getItem("token");
+
     toast.promise(
       fetch("https://car-rental-system-wgtb.onrender.com/graphql", {
         method: "POST",
@@ -59,26 +58,121 @@ export const BookingCard = ({
           Authorization: token ? `Bearer ${token}` : "",
         },
         body: JSON.stringify({
-          query,
+          query: cancelQuery,
           variables,
         }),
       })
         .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to cancel booking");
-          }
+          if (!response.ok) throw new Error("Failed to cancel booking");
           return response.json();
         })
         .then((data) => {
-          if (data.errors) {
-            throw new Error(data.errors[0].message);
-          }
-          onCancel(id); 
+          if (data.errors) throw new Error(data.errors[0].message);
+          onCancel(id);
         }),
       {
         loading: "Cancelling booking...",
         success: "Booking cancelled successfully",
         error: (error) => `Failed to cancel booking: ${error.message}`,
+      }
+    );
+  };
+
+  const handlePayment = () => {
+    const paymentQuery = `
+      mutation InitializePayment($bookingId: ID!) {
+        initializePayment(bookingId: $bookingId) {
+          paymentUrl
+          reference
+        }
+      }
+    `;
+
+    const variables = { bookingId: id };
+    const token = localStorage.getItem("token");
+
+    toast.promise(
+      fetch("https://car-rental-system-wgtb.onrender.com/graphql", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify({
+          query: paymentQuery,
+          variables,
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to initialize payment");
+          return response.json();
+        })
+        .then((data) => {
+          if (data.errors) throw new Error(data.errors[0].message);
+          const { paymentUrl, reference } = data.data.initializePayment;
+          setPaymentReference(reference); // Store the reference
+          window.location.href = paymentUrl;
+        }),
+      {
+        loading: "Initializing payment...",
+        success: "Paystack Success",
+        error: (error) => `Payment initialization failed: ${error.message}`,
+      }
+    );
+  };
+
+  const verifyPayment = () => {
+    if (!paymentReference) {
+      toast.error("No payment reference available");
+      return;
+    }
+
+    const verifyQuery = `
+      query VerifyPayment($reference: String!) {
+        verifyPayment(reference: $reference) {
+          status
+          message
+          data {
+            amount
+            status
+          }
+        }
+      }
+    `;
+
+    const variables = { reference: paymentReference };
+    const token = localStorage.getItem("token");
+
+    toast.promise(
+      fetch("https://car-rental-system-wgtb.onrender.com/graphql", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify({
+          query: verifyQuery,
+          variables,
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to verify payment");
+          return response.json();
+        })
+        .then((data) => {
+          if (data.errors) throw new Error(data.errors[0].message);
+          const paymentStatus = data.data.verifyPayment.status;
+          const message = data.data.verifyPayment.message;
+          if (paymentStatus === "success") {
+            return message; // Success message
+          } else {
+            throw new Error(message || "Payment verification failed");
+          }
+        }),
+      {
+        loading: "Verifying payment...",
+        success: (message) => `Payment verified: ${message}`,
+        error: (error) => `Payment verification failed: ${error.message}`,
       }
     );
   };
@@ -123,14 +217,31 @@ export const BookingCard = ({
 
       <div className="flex justify-between space-x-3 items-center pt-4">
         <p className="font-semibold">Total: €{totalPrice}</p>
-        <button className="text-white font-medium h-8 w-32 rounded-lg text-sm bg-yellow-400 disabled:bg-yellow-300 disabled:cursor-not-allowed hover:bg-yellow-500" disabled={status != "PENDING"}>Make Payment</button>
-        <button
-          onClick={handleCancel}
-          disabled={status != "PENDING"} 
-          className="text-white font-medium h-8 w-32 rounded-lg text-sm bg-red-600 hover:bg-red-700  disabled:bg-red-400 disabled:cursor-not-allowed"
+        <div className="flex space-x-3">
+          <button
+            onClick={handlePayment}
+            className="text-white font-medium h-8 w-32 rounded-lg text-sm bg-yellow-400 disabled:bg-yellow-300 disabled:cursor-not-allowed hover:bg-yellow-500"
+            disabled={status !== "PENDING"}
+          >
+            Make Payment
+          </button>
+          {paymentReference && (
+            <button
+              onClick={verifyPayment}
+              className="text-white font-medium h-8 w-32 rounded-lg text-sm bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed"
+              disabled={status !== "PENDING"}
+            >
+              Verify Payment
+            </button>
+          )}
+          <button
+            onClick={handleCancel}
+            disabled={status !== "PENDING"}
+            className="text-white font-medium h-8 w-32 rounded-lg text-sm bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed"
           >
             Cancel Booking
           </button>
+        </div>
       </div>
     </Card>
   );
