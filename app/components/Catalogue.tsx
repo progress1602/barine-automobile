@@ -3,12 +3,12 @@
 import Navbar from "./Navbar";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import router from "next/router";
+import { useRouter } from "next/navigation"; // Updated import for Next.js 13+
 import { Label } from "@/components/ui/label";
 
 const API_URL = "https://car-rental-system-wgtb.onrender.com/graphql";
@@ -57,18 +57,16 @@ const CarCatalogue = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [make, setMake] = useState('');
-  const [model, setModel] = useState('');
-  const [id, setId] = useState('');
+  const [make, setMake] = useState("");
+  const [model, setModel] = useState("");
+  const [id, setId] = useState("");
 
-  const handleClickOpen = ({make, model, id}:{make:string; model:string; id:string}) => {
+  const handleClickOpen = ({ make, model, id }: { make: string; model: string; id: string }) => {
     setOpen(true);
-    setMake(make)
-    setModel(model)
-    setId(id)
-    console.log("make is set to", make)
-    console.log("model is set to", model)
-    console.log("id is set to", id)
+    setMake(make);
+    setModel(model);
+    setId(id);
+    console.log("Dialog opened with:", { make, model, id });
   };
 
   const handleClose = () => {
@@ -87,6 +85,7 @@ const CarCatalogue = () => {
         });
 
         const { data, errors } = await response.json();
+        console.log("Cars fetched:", { data, errors });
 
         if (errors) {
           throw new Error(errors[0].message);
@@ -112,28 +111,21 @@ const CarCatalogue = () => {
   }
 
   if (error) {
-    return <p className="text-center text-red-500">No cars found </p>;
+    return <p className="text-center text-red-500">No cars found: {error}</p>;
   }
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">
-      <Navbar/>
+      <Navbar />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {cars.map((car) => (
-          <div onClick={()=>{handleClickOpen({make: car.make, model:car.model, id:car.id})}} key={car.id}>
-            <CarCard key={car.id} {...car} />
+          <div onClick={() => handleClickOpen({ make: car.make, model: car.model, id: car.id })} key={car.id}>
+            <CarCard {...car} />
           </div>
         ))}
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <SimpleDialog
-            id={id}
-            make={make}
-            model={model}
-            onClose={handleClose}
-          />
-        </DialogTrigger>
+        <SimpleDialog id={id} make={make} model={model} onClose={handleClose} />
       </Dialog>
     </section>
   );
@@ -147,11 +139,9 @@ export interface SimpleDialogProps {
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
-  const { onClose, make, model, id } = props;
+  const { make, model, id, onClose } = props;
   const [loading, setLoading] = useState(false);
-  const handleClose = () => {
-    onClose();
-  };
+  const router = useRouter(); // Use the router hook
   const [formData, setFormData] = useState({
     car: "",
     startdate: "",
@@ -162,13 +152,12 @@ function SimpleDialog(props: SimpleDialogProps) {
   });
 
   const handleInputChange = (field: string, value: string) => {
-    const currentDate = new Date("2025-03-20"); // Using the current date as per system info
+    const currentDate = new Date("2025-03-20"); // Hardcoded for now; consider dynamic date
     const selectedDate = new Date(value);
 
-    // Check if the selected date is before the current date for startdate or enddate
     if ((field === "startdate" || field === "enddate") && value && selectedDate < currentDate) {
       toast.error("You cannot use a date that has passed.");
-      return; // Prevent updating the state with an invalid date
+      return;
     }
 
     setFormData((prev) => ({
@@ -177,10 +166,7 @@ function SimpleDialog(props: SimpleDialogProps) {
     }));
 
     if (field === "startdate" || field === "enddate") {
-      calculateTotalPrice(
-        field === "startdate" ? value : formData.startdate,
-        field === "enddate" ? value : formData.enddate
-      );
+      calculateTotalPrice(field === "startdate" ? value : formData.startdate, field === "enddate" ? value : formData.enddate);
     }
   };
 
@@ -188,9 +174,13 @@ function SimpleDialog(props: SimpleDialogProps) {
     if (start && end) {
       const startDate = new Date(start);
       const endDate = new Date(end);
+      if (endDate < startDate) {
+        toast.error("End date cannot be before start date");
+        return;
+      }
       const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const pricePerDay = 50;
+      const pricePerDay = 50; // Hardcoded; consider fetching from car data
       const total = diffDays * pricePerDay;
 
       setFormData((prev) => ({
@@ -201,12 +191,7 @@ function SimpleDialog(props: SimpleDialogProps) {
   };
 
   const handleSubmit = async () => {
-    if (
-      !formData.startdate ||
-      !formData.enddate ||
-      !formData.pickuplocation ||
-      !formData.dropofflocation
-    ) {
+    if (!formData.startdate || !formData.enddate || !formData.pickuplocation || !formData.dropofflocation) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -214,7 +199,9 @@ function SimpleDialog(props: SimpleDialogProps) {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No authentication token found");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
 
       const mutation = `
         mutation {
@@ -238,57 +225,59 @@ function SimpleDialog(props: SimpleDialogProps) {
         }
       `;
 
-      const response = await fetch(
-        "https://car-rental-system-wgtb.onrender.com/graphql",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ query: mutation }),
-        }
-      );
+      console.log("Sending booking request:", { id, ...formData });
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ query: mutation }),
+      });
 
       const result = await response.json();
+      console.log("Backend response:", result);
 
-      // Check for any errors from the backend and display them as toast
       if (result.errors && result.errors.length > 0) {
+        const bookingConflict = result.errors.find(
+          (error: { message: string }) => error.message === "Car is already booked for the selected dates"
+        );
+        if (bookingConflict) {
+          toast.error(`Sorry, the ${make} ${model} is already booked for these dates. Please choose different dates or another car.`);
+          return;
+        }
         result.errors.forEach((error: { message: string }) => {
-          // Check for the exact error message from the backend
-          if (error.message === "Car is already booked for the selected dates") {
-            toast.error(`Sorry, the ${make} ${model} is already booked for the selected dates. Please choose different dates or another car.`);
-          } else {
-            toast.error(error.message || "An error occurred during booking");
-          }
+          toast.error(error.message || "Booking failed for an unknown reason");
         });
         return;
       }
 
-      // Handle unauthorized response
-      if (response.status === 401) {
-        localStorage.removeItem("token");
-        toast.error("Session expired. Please log in again.");
-        router.push("/login");
-        return;
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem("token");
+          toast.error("Session expired. Please log in again.");
+          router.push("/login");
+          return;
+        }
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const booking = result.data?.createBooking;
-
       if (booking) {
-        handleClose();
         toast.success("Rental booking submitted successfully!");
+        onClose(); // Close the dialog
         setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 3000);
+          router.push("/dashboard"); // Use Next.js router for navigation
+        }, 1000);
+      } else {
+        throw new Error("No booking data returned from server");
       }
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message || "An unexpected error occurred. Please try again.");
-      } else {
-        toast.error("An unexpected error occurred. Please try again.");
-      }
-      if (error instanceof Error && error.message === "No authentication token found") {
+      console.error("Booking error:", error);
+      const message = error instanceof Error ? error.message : "An unexpected error occurred";
+      toast.error(message);
+      if (message.includes("token") || message.includes("authentication")) {
         router.push("/signup");
       }
     } finally {
@@ -299,24 +288,15 @@ function SimpleDialog(props: SimpleDialogProps) {
   return (
     <DialogContent className="sm:max-w-[425px]">
       <DialogHeader>
-        <DialogTitle className="text-2xl font-semibold">
-          Car Rental Form
-        </DialogTitle>
-        <p className="text-gray-500">
-          Please fill in your rental details below.
-        </p>
+        <DialogTitle className="text-2xl font-semibold">Car Rental Form</DialogTitle>
+        <p className="text-gray-500">Please fill in your rental details below.</p>
       </DialogHeader>
       <ScrollArea className="max-h-[60vh] pr-4">
         <div className="grid gap-6 py-4">
           <div className="grid gap-4">
             <Label htmlFor="car">Car</Label>
             <div className="relative">
-              <Input
-                id="car"
-                readOnly
-                value={`${make}, ${model}`}
-                placeholder="Search for a car"
-              />
+              <Input id="car" readOnly value={`${make}, ${model}`} placeholder="Search for a car" />
             </div>
           </div>
           <div className="grid gap-4">
@@ -325,9 +305,7 @@ function SimpleDialog(props: SimpleDialogProps) {
               id="startdate"
               type="date"
               value={formData.startdate}
-              onChange={(e) =>
-                handleInputChange("startdate", e.target.value)
-              }
+              onChange={(e) => handleInputChange("startdate", e.target.value)}
             />
           </div>
           <div className="grid gap-4">
@@ -345,9 +323,7 @@ function SimpleDialog(props: SimpleDialogProps) {
               id="pickuplocation"
               placeholder="Enter pickup location"
               value={formData.pickuplocation}
-              onChange={(e) =>
-                handleInputChange("pickuplocation", e.target.value)
-              }
+              onChange={(e) => handleInputChange("pickuplocation", e.target.value)}
             />
           </div>
           <div className="grid gap-4">
@@ -356,19 +332,14 @@ function SimpleDialog(props: SimpleDialogProps) {
               id="dropofflocation"
               placeholder="Enter drop-off location"
               value={formData.dropofflocation}
-              onChange={(e) =>
-                handleInputChange("dropofflocation", e.target.value)
-              }
+              onChange={(e) => handleInputChange("dropofflocation", e.target.value)}
             />
           </div>
         </div>
       </ScrollArea>
       <Button
         className="w-full bg-black hover:bg-gray-800 text-white"
-        onClick={() => {
-          handleSubmit();
-          console.log("clicked");
-        }}
+        onClick={handleSubmit}
         disabled={loading}
       >
         {loading ? "Processing..." : "Rent"}

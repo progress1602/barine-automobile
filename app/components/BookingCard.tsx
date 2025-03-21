@@ -108,7 +108,6 @@ export const BookingCard = ({
       })
       .catch((error) => {
         console.error("Error verifying payment:", error);
-        toast.error(`Failed to verify payment: ${error.message}`);
       });
   };
 

@@ -47,7 +47,7 @@ const Navbar = () => {
     { name: "About", path: "/" },
     { name: "Faq", path: "/" },
     { name: "Catalogue", path: "/catalogue" },
-    // { name: "Rent", path: "/rent" },
+  
   ];
 
   const dropdownItems = [
