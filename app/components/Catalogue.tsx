@@ -11,8 +11,6 @@ import { toast } from "sonner";
 import router from "next/router";
 import { Label } from "@/components/ui/label";
 
-
-
 const API_URL = "https://car-rental-system-wgtb.onrender.com/graphql";
 
 const GET_CARS_QUERY = `
@@ -62,8 +60,6 @@ const CarCatalogue = () => {
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
   const [id, setId] = useState('');
-  
-  // const [selectedValue, setSelectedValue] = React.useState(emails[1]);
 
   const handleClickOpen = ({make, model, id}:{make:string; model:string; id:string}) => {
     setOpen(true);
@@ -77,8 +73,8 @@ const CarCatalogue = () => {
 
   const handleClose = () => {
     setOpen(false);
-    // setSelectedValue(value);
   };
+
   useEffect(() => {
     const fetchCars = async () => {
       try {
@@ -122,46 +118,36 @@ const CarCatalogue = () => {
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">
       <Navbar/>
-    
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {cars.map((car) => (
-        
           <div onClick={()=>{handleClickOpen({make: car.make, model:car.model, id:car.id})}} key={car.id}>
-
-          <CarCard key={car.id} {...car} />
+            <CarCard key={car.id} {...car} />
           </div>
         ))}
       </div>
-     
       <Dialog open={open} onOpenChange={setOpen}>
-
-                 <DialogTrigger asChild>
-                    
-      <SimpleDialog
-        id={id}
-        make={make}
-        model={model}
-
-        onClose={handleClose}
-        />
+        <DialogTrigger asChild>
+          <SimpleDialog
+            id={id}
+            make={make}
+            model={model}
+            onClose={handleClose}
+          />
         </DialogTrigger>
-        </Dialog>
+      </Dialog>
     </section>
   );
 };
 
-
-
-
 export interface SimpleDialogProps {
   onClose: () => void;
-  make:string;
-  model:string;
-  id:string;
+  make: string;
+  model: string;
+  id: string;
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
-  const { onClose, make, model, id} = props;
+  const { onClose, make, model, id } = props;
   const [loading, setLoading] = useState(false);
   const handleClose = () => {
     onClose();
@@ -176,6 +162,15 @@ function SimpleDialog(props: SimpleDialogProps) {
   });
 
   const handleInputChange = (field: string, value: string) => {
+    const currentDate = new Date("2025-03-20"); // Using the current date as per system info
+    const selectedDate = new Date(value);
+
+    // Check if the selected date is before the current date for startdate or enddate
+    if ((field === "startdate" || field === "enddate") && value && selectedDate < currentDate) {
+      toast.error("You cannot use a date that has passed.");
+      return; // Prevent updating the state with an invalid date
+    }
+
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -205,10 +200,8 @@ function SimpleDialog(props: SimpleDialogProps) {
     }
   };
 
-
   const handleSubmit = async () => {
     if (
-     
       !formData.startdate ||
       !formData.enddate ||
       !formData.pickuplocation ||
@@ -257,124 +250,130 @@ function SimpleDialog(props: SimpleDialogProps) {
         }
       );
 
-      if (response.status === 401) {
-        localStorage.removeItem("token");
-        router.push("/login");
+      const result = await response.json();
+
+      // Check for any errors from the backend and display them as toast
+      if (result.errors && result.errors.length > 0) {
+        result.errors.forEach((error: { message: string }) => {
+          // Check for the exact error message from the backend
+          if (error.message === "Car is already booked for the selected dates") {
+            toast.error(`Sorry, the ${make} ${model} is already booked for the selected dates. Please choose different dates or another car.`);
+          } else {
+            toast.error(error.message || "An error occurred during booking");
+          }
+        });
         return;
       }
 
-      const result = await response.json();
-
-      if (result.errors) {
-        toast.error(result.errors[0]?.message || "Failed to create booking");
+      // Handle unauthorized response
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        toast.error("Session expired. Please log in again.");
+        router.push("/login");
         return;
       }
 
       const booking = result.data?.createBooking;
 
       if (booking) {
-       
         handleClose();
         toast.success("Rental booking submitted successfully!");
         setTimeout(() => {
           window.location.href = "/dashboard";
         }, 3000);
       }
-    } catch {
-      toast.error("Authentication failed. Please sign up or log in.");
-      router.push("/signup");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "An unexpected error occurred. Please try again.");
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
+      if (error instanceof Error && error.message === "No authentication token found") {
+        router.push("/signup");
+      }
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <DialogContent className="sm:max-w-[425px]">
-    <DialogHeader>
-      <DialogTitle className="text-2xl font-semibold">
-        Car Rental Form
-      </DialogTitle>
-      <p className="text-gray-500">
-        Please fill in your rental details below.
-      </p>
-    </DialogHeader>
-    <ScrollArea className="max-h-[60vh] pr-4">
-      <div className="grid gap-6 py-4">
-        <div className="grid gap-4">
-          <Label htmlFor="car">Car</Label>
-          <div className="relative">
+      <DialogHeader>
+        <DialogTitle className="text-2xl font-semibold">
+          Car Rental Form
+        </DialogTitle>
+        <p className="text-gray-500">
+          Please fill in your rental details below.
+        </p>
+      </DialogHeader>
+      <ScrollArea className="max-h-[60vh] pr-4">
+        <div className="grid gap-6 py-4">
+          <div className="grid gap-4">
+            <Label htmlFor="car">Car</Label>
+            <div className="relative">
+              <Input
+                id="car"
+                readOnly
+                value={`${make}, ${model}`}
+                placeholder="Search for a car"
+              />
+            </div>
+          </div>
+          <div className="grid gap-4">
+            <Label htmlFor="startdate">Start Date</Label>
             <Input
-              id="car"
-              
-              readOnly
-
-              value={`${make}, ${model}`}
-              placeholder="Search for a car"
-              // value={searchTerm}
-              // onChange={(e) => setSearchTerm(e.target.value)}
+              id="startdate"
+              type="date"
+              value={formData.startdate}
+              onChange={(e) =>
+                handleInputChange("startdate", e.target.value)
+              }
             />
-           
+          </div>
+          <div className="grid gap-4">
+            <Label htmlFor="enddate">End Date</Label>
+            <Input
+              id="enddate"
+              type="date"
+              value={formData.enddate}
+              onChange={(e) => handleInputChange("enddate", e.target.value)}
+            />
+          </div>
+          <div className="grid gap-4">
+            <Label htmlFor="pickuplocation">Pickup Location</Label>
+            <Input
+              id="pickuplocation"
+              placeholder="Enter pickup location"
+              value={formData.pickuplocation}
+              onChange={(e) =>
+                handleInputChange("pickuplocation", e.target.value)
+              }
+            />
+          </div>
+          <div className="grid gap-4">
+            <Label htmlFor="dropofflocation">Drop-off Location</Label>
+            <Input
+              id="dropofflocation"
+              placeholder="Enter drop-off location"
+              value={formData.dropofflocation}
+              onChange={(e) =>
+                handleInputChange("dropofflocation", e.target.value)
+              }
+            />
           </div>
         </div>
-        <div className="grid gap-4">
-          <Label htmlFor="startdate">Start Date</Label>
-          <Input
-            id="startdate"
-            type="date"
-            value={formData.startdate}
-            onChange={(e) =>
-              handleInputChange("startdate", e.target.value)
-            }
-          />
-        </div>
-        <div className="grid gap-4">
-          <Label htmlFor="enddate">End Date</Label>
-          <Input
-            id="enddate"
-            type="date"
-            value={formData.enddate}
-            onChange={(e) => handleInputChange("enddate", e.target.value)}
-          />
-        </div>
-        <div className="grid gap-4">
-          <Label htmlFor="pickuplocation">Pickup Location</Label>
-          <Input
-            id="pickuplocation"
-            placeholder="Enter pickup location"
-            value={formData.pickuplocation}
-            onChange={(e) =>
-              handleInputChange("pickuplocation", e.target.value)
-            }
-          />
-        </div>
-        <div className="grid gap-4">
-          <Label htmlFor="dropofflocation">Drop-off Location</Label>
-          <Input
-            id="dropofflocation"
-            placeholder="Enter drop-off location"
-            value={formData.dropofflocation}
-            onChange={(e) =>
-              handleInputChange("dropofflocation", e.target.value)
-            }
-          />
-        </div>
-      </div>
-    </ScrollArea>
-    <Button
-      className="w-full bg-black hover:bg-gray-800 text-white"
-      onClick={
-        ()=>{
-          
+      </ScrollArea>
+      <Button
+        className="w-full bg-black hover:bg-gray-800 text-white"
+        onClick={() => {
           handleSubmit();
           console.log("clicked");
-        }
-      }
-      
-      disabled={loading}
-    >
-       {loading ? "Processing..." : "Rent"}
-    </Button>
-  </DialogContent>
-
+        }}
+        disabled={loading}
+      >
+        {loading ? "Processing..." : "Rent"}
+      </Button>
+    </DialogContent>
   );
 }
 
