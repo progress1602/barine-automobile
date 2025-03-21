@@ -225,7 +225,7 @@ function SimpleDialog(props: SimpleDialogProps) {
         }
       `;
 
-      console.log("Sending booking request:", { id, ...formData });
+      // console.log("Sending booking request:", { id, ...formData });
 
       const response = await fetch(API_URL, {
         method: "POST",
@@ -261,7 +261,7 @@ function SimpleDialog(props: SimpleDialogProps) {
 
       const booking = result.data?.createBooking;
       if (booking) {
-        toast.success("Rental booking submitted successfully!");
+        toast.success("booking successfully!");
         onClose(); // Close the dialog
         setTimeout(() => {
           router.push("/dashboard"); // Use Next.js router for navigation
