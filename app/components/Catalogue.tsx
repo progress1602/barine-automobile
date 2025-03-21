@@ -66,7 +66,7 @@ const CarCatalogue = () => {
     setMake(make);
     setModel(model);
     setId(id);
-    console.log("Dialog opened with:", { make, model, id });
+   
   };
 
   const handleClose = () => {
@@ -236,20 +236,16 @@ function SimpleDialog(props: SimpleDialogProps) {
         body: JSON.stringify({ query: mutation }),
       });
 
+      //this is to check if the response error from the backend
       const result = await response.json();
       console.log("Backend response:", result);
+      console.log("Backend err response:", result.errors);
 
       if (result.errors && result.errors.length > 0) {
-        const bookingConflict = result.errors.find(
-          (error: { message: string }) => error.message === "Car is already booked for the selected dates"
-        );
-        if (bookingConflict) {
-          toast.error(`Sorry, the ${make} ${model} is already booked for these dates. Please choose different dates or another car.`);
-          return;
-        }
-        result.errors.forEach((error: { message: string }) => {
-          toast.error(error.message || "Booking failed for an unknown reason");
-        });
+        console.log("the err is", result.errors[0].message);
+       
+          toast.error(result.errors[0].message);
+       
         return;
       }
 
