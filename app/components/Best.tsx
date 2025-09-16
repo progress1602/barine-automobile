@@ -15,17 +15,18 @@ const DriverSafety = () => {
           <h2 className="text-4xl md:text-5xl font-light mb-6">
             We Care About Your
             <br />
-            Comfort And Safety
+            Comfort And Confidence
           </h2>
           <p className="uppercase text-red-600 tracking-wider text-sm font-medium mb-4">
-            BEST DRIVERS
+            PREMIUM CARS
           </p>
           <p className="text-black mb-8 leading-relaxed">
-            Experience top-tier service with our expert drivers—professional,
-            courteous, and dedicated to making your journey safe, smooth, and
-            enjoyable. Ride with the best!.
+            Discover a wide selection of top-quality cars built for performance,
+            comfort, and safety. Whether you’re looking for luxury, durability,
+            or everyday reliability, we provide only the best vehicles to match
+            your lifestyle. Own a car you can trust.
           </p>
-          <a href="/rent">
+          <a href="/cars">
             <button className="group inline-flex items-center text-black border border-red-600 px-6 py-3 rounded-2xl hover:bg-red-600 hover:text-white transition-all duration-300 w-fit">
               <span className="mr-2">VIEW MORE</span>
               <span className="text-xl group-hover:translate-x-1 transition-transform duration-300">
@@ -39,7 +40,7 @@ const DriverSafety = () => {
         <div className="relative h-[400px] md:h-auto">
           <Image
             src="/best.jpeg"
-            alt="Professional driver in mask"
+            alt="Luxury car showcase"
             fill
             className="object-cover"
             priority

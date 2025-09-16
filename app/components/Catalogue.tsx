@@ -34,7 +34,7 @@ interface Car {
 }
 
 const CarCard: React.FC<Car> = ({ make, price, model, imageUrl }) => (
-  <div className="bg-slate-200 p-8 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center">
+  <div className="bg-slate-200 mt-20 p-8 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center">
     <Image
       src={imageUrl}
       alt={make}

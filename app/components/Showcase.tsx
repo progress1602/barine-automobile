@@ -66,7 +66,8 @@ const CarSlider = () => {
   }, []);
 
   useEffect(() => {
-    if (cars.length === 0) return;
+    // ✅ Only run slider if there are at least 4 cars
+    if (cars.length < 4) return;
 
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => {
@@ -109,13 +110,13 @@ interface CarCardProps {
 }
 
 const CarCard: React.FC<CarCardProps> = ({ make, model, price, imageUrl }) => (
-  <div className="bg-[#FAF9F6] p-8 flex flex-col items-center">
+  <div className="bg-[#FAF9F6] p-8 rounded-2xl flex flex-col items-center">
     <Image
       src={imageUrl}
       alt={make}
       width={200}
       height={200}
-      className="w-full h-48 object-contain mb-6"
+      className="w-full h-48 object-contain mb-6 rounded-xl"
     />
     <h3 className="text-2xl font-medium text-gray-900 mb-2">{make}</h3>
     <div className="flex gap-1 mb-4">

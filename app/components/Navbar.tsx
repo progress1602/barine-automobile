@@ -64,11 +64,11 @@ const Navbar = () => {
             className="text-2xl font-semibold flex items-center text-space-cadet"
           >
             <Image
-              src="/logo1.png"
+              src="/b1.png"
               alt="Logo"
               width={150}
               height={20}
-              className="h-10 w-10"
+              className="h-20 w-20"
             />
           </Link>
 

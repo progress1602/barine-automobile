@@ -3,34 +3,34 @@ import React from "react";
 const ServiceGrid = () => {
   const services = [
     {
-      title: "Deals For Every Budget",
+      title: "Cars for Every Budget",
       description:
-        "Find the perfect car rental at the right price! Whether you're looking for an affordable compact car, a family-friendly SUV, or a luxury ride, we offer deals to fit every budget. ",
+        "Whether you're looking for a reliable starter car, a spacious family SUV, or a premium luxury ride, Barine Automobiles has the right option to fit your budget and lifestyle.",
     },
     {
-      title: "Cleanliness & Comfort",
+      title: "Quality & Comfort",
       description:
-        "Enjoy a spotless and well-maintained ride with our car rentals. Every vehicle is thoroughly cleaned and sanitized for your safety and comfort. ",
+        "Every car we sell is thoroughly inspected to ensure excellent performance, safety, and comfort. Drive home with confidence knowing your car is in top condition.",
     },
     {
-      title: "Best Prices Garanteed",
+      title: "Best Prices Guaranteed",
       description:
-        "Get the best deals on car rentals with our price match guarantee! We offer competitive rates to ensure you get the most value for your money.",
+        "We offer highly competitive prices on all our vehicles. With Barine Automobiles, you’re assured of getting the best value for your money.",
     },
     {
-      title: "24/7 Order Available",
+      title: "Available Anytime",
       description:
-        "Rent a car anytime, anywhere! Our service is available 24/7, ensuring you can book a vehicle whenever you need it.",
+        "Our sales team is ready to assist you whenever you need. From inquiries to test drives, we make the car buying process simple and always available.",
     },
     {
-      title: "Professional Drivers",
+      title: "Trusted Experts",
       description:
-        "Ride with confidence knowing our experienced and courteous drivers are here to provide a safe and comfortable journey. ",
+        "Our experienced and professional staff will guide you through every step — from choosing the right car to securing the best financing options.",
     },
     {
-      title: "Fast Car Delivery",
+      title: "Fast & Hassle-Free Delivery",
       description:
-        "Get on the road quickly with our fast and efficient car delivery service. Whether you need a rental at your doorstep, hotel, or airport, we ensure timely delivery so you can start your journey without delay.",
+        "Once you’ve made your choice, we ensure a quick and seamless car delivery process so you can start enjoying your new vehicle without delay.",
     },
   ];
 
@@ -60,9 +60,6 @@ const ServiceGrid = () => {
               <p className="text-gray-700 leading-relaxed">
                 {service.description}
               </p>
-              {/* <button className="flex items-center text-red-600 hover:underline font-semibold decoration-red-600  mt-4 uppercase text-sm tracking-wider ">
-                + VIEW MORE
-              </button> */}
             </div>
           </div>
         ))}
@@ -87,9 +84,6 @@ const ServiceGrid = () => {
               <p className="text-gray-700 leading-relaxed">
                 {service.description}
               </p>
-              {/* <button className="flex items-center text-red-600 hover:underline font-semibold decoration-red-600  mt-4 uppercase text-sm tracking-wider">
-                + VIEW MORE
-              </button> */}
             </div>
           </div>
         ))}
