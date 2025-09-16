@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Star } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const CarSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -109,28 +110,43 @@ interface CarCardProps {
   imageUrl: string;
 }
 
-const CarCard: React.FC<CarCardProps> = ({ make, model, price, imageUrl }) => (
-  <div className="bg-[#FAF9F6] p-8 rounded-2xl flex flex-col items-center">
-    <Image
-      src={imageUrl}
-      alt={make}
-      width={200}
-      height={200}
-      className="w-full h-48 object-contain mb-6 rounded-xl"
-    />
-    <h3 className="text-2xl font-medium text-gray-900 mb-2">{make}</h3>
-    <div className="flex gap-1 mb-4">
-      {[...Array(5)].map((_, index) => (
-        <Star key={index} className="w-5 h-5 fill-red-600" />
-      ))}
+const CarCard: React.FC<CarCardProps> = ({ make, model, price, imageUrl }) => {
+  const router = useRouter();
+
+  const handleBuyNow = () => {
+    router.push("/catalogue");
+  };
+
+  return (
+    <div className="bg-[#FAF9F6] p-8 rounded-2xl flex flex-col items-center">
+      <Image
+        src={imageUrl}
+        alt={make}
+        width={200}
+        height={200}
+        className="w-full h-48 object-contain mb-6 rounded-xl"
+      />
+      <h3 className="text-2xl font-medium text-gray-900 mb-2">{make}</h3>
+      <div className="flex gap-1 mb-4">
+        {[...Array(5)].map((_, index) => (
+          <Star key={index} className="w-5 h-5 fill-red-600" />
+        ))}
+      </div>
+      <p className="text-gray-600 text-center mb-4">{model}</p>
+      <div className="flex items-baseline mb-6">
+        <span className="text-4xl font-light">₦</span>
+        <span className="text-5xl font-light">{price}</span>
+        <span className="text-gray-600 ml-2">/ for sale</span>
+      </div>
+      {/* ✅ Buy Now Button */}
+      <button
+        onClick={handleBuyNow}
+        className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
+      >
+        Buy Now
+      </button>
     </div>
-    <p className="text-gray-600 text-center mb-4">{model}</p>
-    <div className="flex items-baseline mb-6">
-      <span className="text-4xl font-light">£</span>
-      <span className="text-5xl font-light">{price}</span>
-      <span className="text-gray-600 ml-2">/ Per day</span>
-    </div>
-  </div>
-);
+  );
+};
 
 export default CarSlider;

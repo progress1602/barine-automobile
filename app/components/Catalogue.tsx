@@ -45,9 +45,9 @@ const CarCard: React.FC<Car> = ({ make, price, model, imageUrl }) => (
     <h3 className="text-2xl font-medium text-gray-900 mb-3">{make}</h3>
     <p className="text-gray-600 text-center mb-4">{model}</p>
     <div className="flex items-baseline mt-auto">
-      <span className="text-4xl font-light">£</span>
+      <span className="text-4xl font-light">₦</span>
       <span className="text-5xl font-light">{price}</span>
-      <span className="text-gray-600 ml-2">/ Per day</span>
+      <span className="text-gray-600 ml-2">/ for sale</span>
     </div>
   </div>
 );

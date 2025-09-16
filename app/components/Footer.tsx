@@ -28,6 +28,7 @@ const Footer = () => {
             <p className="text-gray-400 uppercase text-sm tracking-wider">
               CALL CENTER: +234 803 312 2489 or +234 802 602 2999
             </p>
+            <p className="text-gray-400 uppercase text-sm tracking-wider mt-2">Address: #150 Aba Road, portharcourt, rivers state</p>
           </div>
 
           {/* Quick Links */}

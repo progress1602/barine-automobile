@@ -56,8 +56,8 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="p-4 rounded-3xl backdrop-blur-3xl bg-opacity-30 text-space-cadet bg-slate-50 fixed top-4 right-5 left-5 md:whitespace-nowrap md:right-8 md:left-8 lg:right-40 lg:left-40 z-50">
-      <div className="text-sm container flex justify-between items-center font-medium mx-auto">
+    <nav className="p-4 rounded-3xl backdrop-blur-3xl bg-opacity-30 text-space-cadet bg-slate-50 fixed top-3 right-5 left-5 md:whitespace-nowrap md:right-8 md:left-8 lg:right-40 lg:left-40 z-50">
+      <div className="text-sm container flex justify-between items-center h-16 font-medium mx-auto">
         <div className="flex justify-between items-center w-full">
           <Link
             href="/"
@@ -67,8 +67,8 @@ const Navbar = () => {
               src="/b1.png"
               alt="Logo"
               width={150}
-              height={20}
-              className="h-20 w-20"
+              height={10}
+              className="h-36 w-36"
             />
           </Link>
 
