@@ -1,47 +1,47 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState} from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X, User } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Menu, X } from "lucide-react";
+// import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // const router = useRouter();
 
-  const checkAuthStatus = useCallback(() => {
-    const token = localStorage.getItem("token"); // Changed to match LoginPage
-    setIsAuthenticated(!!token);
-  }, []);
+  // const checkAuthStatus = useCallback(() => {
+  //   const token = localStorage.getItem("token"); // Changed to match LoginPage
+  //   setIsAuthenticated(!!token);
+  // }, []);
 
-  useEffect(() => {
-    checkAuthStatus();
-    window.addEventListener("storage", checkAuthStatus);
-    window.addEventListener("authChange", checkAuthStatus);
+  // useEffect(() => {
+  //   checkAuthStatus();
+  //   window.addEventListener("storage", checkAuthStatus);
+  //   window.addEventListener("authChange", checkAuthStatus);
 
-    return () => {
-      window.removeEventListener("storage", checkAuthStatus);
-      window.removeEventListener("authChange", checkAuthStatus);
-    };
-  }, [checkAuthStatus]);
+  //   return () => {
+  //     window.removeEventListener("storage", checkAuthStatus);
+  //     window.removeEventListener("authChange", checkAuthStatus);
+  //   };
+  // }, [checkAuthStatus]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
+  // const toggleDropdown = () => {
+  //   setIsDropdownOpen(!isDropdownOpen);
+  // };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.dispatchEvent(new Event("authChange"));
-    setIsDropdownOpen(false);
-    router.push("/");
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem("token");
+  //   window.dispatchEvent(new Event("authChange"));
+  //   // setIsDropdownOpen(false);
+  //   router.push("/");
+  // };
 
   const navItems = [
     { name: "About", path: "/" },
@@ -50,15 +50,15 @@ const Navbar = () => {
   
   ];
 
-  const dropdownItems = [
-    { name: "Dashboard", path: "/dashboard" },
-    { name: "Logout", path: "#", onClick: handleLogout },
-  ];
+  // const dropdownItems = [
+  //   { name: "Dashboard", path: "/dashboard" },
+  //   { name: "Logout", path: "#", onClick: handleLogout },
+  // ];
 
   return (
     <nav className="p-4 rounded-3xl backdrop-blur-3xl bg-opacity-30 text-space-cadet bg-slate-50 fixed top-3 right-5 left-5 md:whitespace-nowrap md:right-8 md:left-8 lg:right-40 lg:left-40 z-50">
       <div className="text-sm container flex justify-between items-center h-16 font-medium mx-auto">
-        <div className="flex justify-between items-center w-full">
+        <div className="flex items-center space-x-40 md:space-x-96 w-full">
           <Link
             href="/"
             className="text-2xl font-semibold flex items-center text-space-cadet"
@@ -85,7 +85,7 @@ const Navbar = () => {
             ))}
           </ul>
 
-          <div className="hidden md:flex items-center">
+          {/* <div className="hidden md:flex items-center">
             {isAuthenticated ? (
               <div className="relative">
                 <button
@@ -131,7 +131,7 @@ const Navbar = () => {
                 </Link>
               </>
             )}
-          </div>
+          </div> */}
 
           <div className="md:hidden flex items-center">
             <button onClick={toggleMenu} className="focus:outline-none text-xl">
@@ -160,7 +160,7 @@ const Navbar = () => {
               </li>
             ))}
           </ul>
-          {isAuthenticated ? (
+          {/* {isAuthenticated ? (
             <div className="mt-6 flex flex-col space-y-4">
               {dropdownItems.map(({ name, path, onClick }) => (
                 <Link
@@ -196,7 +196,7 @@ const Navbar = () => {
                 </div>
               </Link>
             </>
-          )}
+          )} */}
         </div>
       )}
     </nav>

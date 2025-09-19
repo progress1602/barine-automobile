@@ -98,6 +98,9 @@ const CarCard: React.FC<CarCardProps> = ({ make, model, price, imageUrl }) => {
     router.push("/catalogue");
   };
 
+  // Format price with commas
+  const formattedPrice = Number(price).toLocaleString();
+
   return (
     <div className="bg-[#FAF9F6] p-8 rounded-2xl flex flex-col items-center">
       <Image
@@ -116,7 +119,7 @@ const CarCard: React.FC<CarCardProps> = ({ make, model, price, imageUrl }) => {
       <p className="text-gray-600 text-center mb-4">{model}</p>
       <div className="flex items-baseline mb-6">
         <span className="text-4xl font-light">₦</span>
-        <span className="text-5xl font-light">{price}</span>
+        <span className="text-5xl font-light">{formattedPrice}</span>
         <span className="text-gray-600 ml-2">/ for sale</span>
       </div>
       <button

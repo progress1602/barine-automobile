@@ -33,24 +33,29 @@ interface Car {
   imageUrl: string;
 }
 
-const CarCard: React.FC<Car> = ({ make, price, model, imageUrl }) => (
-  <div className="bg-slate-200 mt-20 p-8 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center">
-    <Image
-      src={imageUrl}
-      alt={make}
-      width={200}
-      height={200}
-      className="w-full h-48 rounded-2xl object-contain mb-6"
-    />
-    <h3 className="text-2xl font-medium text-gray-900 mb-3">{make}</h3>
-    <p className="text-gray-600 text-center mb-4">{model}</p>
-    <div className="flex items-baseline mt-auto">
-      <span className="text-4xl font-light">₦</span>
-      <span className="text-5xl font-light">{price}</span>
-      <span className="text-gray-600 ml-2">/ for sale</span>
+// Updated CarCard with formatted price
+const CarCard: React.FC<Car> = ({ make, price, model, imageUrl }) => {
+  const formattedPrice = Number(price).toLocaleString(); // ✅ format price with commas
+
+  return (
+    <div className="bg-slate-200 mt-20 p-8 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center">
+      <Image
+        src={imageUrl}
+        alt={make}
+        width={200}
+        height={200}
+        className="w-full h-48 rounded-2xl object-contain mb-6"
+      />
+      <h3 className="text-2xl font-medium text-gray-900 mb-3">{make}</h3>
+      <p className="text-gray-600 text-center mb-4">{model}</p>
+      <div className="flex items-baseline mt-auto">
+        <span className="text-4xl font-light">₦</span>
+        <span className="text-5xl font-light">{formattedPrice}</span>
+        <span className="text-gray-600 ml-2">/ for sale</span>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const CarCatalogue = () => {
   const [cars, setCars] = useState<Car[]>([]);
@@ -66,7 +71,6 @@ const CarCatalogue = () => {
     setMake(make);
     setModel(model);
     setId(id);
-   
   };
 
   const handleClose = () => {
@@ -152,7 +156,7 @@ function SimpleDialog(props: SimpleDialogProps) {
   });
 
   const handleInputChange = (field: string, value: string) => {
-    const currentDate = new Date("2025-03-20"); // Hardcoded for now; consider dynamic date
+    const currentDate = new Date("2025-03-20"); // Hardcoded for now
     const selectedDate = new Date(value);
 
     if ((field === "startdate" || field === "enddate") && value && selectedDate < currentDate) {
@@ -225,8 +229,6 @@ function SimpleDialog(props: SimpleDialogProps) {
         }
       `;
 
-      // console.log("Sending booking request:", { id, ...formData });
-
       const response = await fetch(API_URL, {
         method: "POST",
         headers: {
@@ -236,16 +238,10 @@ function SimpleDialog(props: SimpleDialogProps) {
         body: JSON.stringify({ query: mutation }),
       });
 
-      //this is to check if the response error from the backend
       const result = await response.json();
-      console.log("Backend response:", result);
-      console.log("Backend err response:", result.errors);
 
       if (result.errors && result.errors.length > 0) {
-        console.log("the err is", result.errors[0].message);
-       
-          toast.error(result.errors[0].message);
-       
+        toast.error(result.errors[0].message);
         return;
       }
 
@@ -261,16 +257,15 @@ function SimpleDialog(props: SimpleDialogProps) {
 
       const booking = result.data?.createBooking;
       if (booking) {
-        toast.success("booking successfully!");
-        onClose(); // Close the dialog
+        toast.success("Booking successfully!");
+        onClose();
         setTimeout(() => {
-          router.push("/dashboard"); // Use Next.js router for navigation
+          router.push("/dashboard");
         }, 1000);
       } else {
         throw new Error("No booking data returned from server");
       }
     } catch (error: unknown) {
-      console.error("Booking error:", error);
       const message = error instanceof Error ? error.message : "An unexpected error occurred";
       toast.error(message);
       if (message.includes("token") || message.includes("authentication")) {
@@ -291,9 +286,7 @@ function SimpleDialog(props: SimpleDialogProps) {
         <div className="grid gap-6 py-4">
           <div className="grid gap-4">
             <Label htmlFor="car">Car</Label>
-            <div className="relative">
-              <Input id="car" readOnly value={`${make}, ${model}`} placeholder="Search for a car" />
-            </div>
+            <Input id="car" readOnly value={`${make}, ${model}`} placeholder="Search for a car" />
           </div>
           <div className="grid gap-4">
             <Label htmlFor="startdate">Start Date</Label>
