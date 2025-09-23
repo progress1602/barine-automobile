@@ -91,7 +91,7 @@ interface CarCardProps {
   imageUrl: string;
 }
 
-const CarCard: React.FC<CarCardProps> = ({ make, model, price, imageUrl }) => {
+const CarCard: React.FC<CarCardProps> = ({ make, model, imageUrl }) => {
   const router = useRouter();
 
   const handleBuyNow = () => {
@@ -99,7 +99,7 @@ const CarCard: React.FC<CarCardProps> = ({ make, model, price, imageUrl }) => {
   };
 
   // Format price with commas
-  const formattedPrice = Number(price).toLocaleString();
+  // const formattedPrice = Number(price).toLocaleString();
 
   return (
     <div className="bg-[#FAF9F6] p-8 rounded-2xl flex flex-col items-center">
@@ -117,14 +117,14 @@ const CarCard: React.FC<CarCardProps> = ({ make, model, price, imageUrl }) => {
         ))}
       </div>
       <p className="text-gray-600 text-center mb-4">{model}</p>
-      <div className="flex items-baseline mb-6">
+      {/* <div className="flex items-baseline mb-6">
         <span className="text-4xl font-light">₦</span>
         <span className="text-5xl font-light">{formattedPrice}</span>
         <span className="text-gray-600 ml-2">/ for sale</span>
-      </div>
+      </div> */}
       <button
         onClick={handleBuyNow}
-        className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
+        className="py-3 px-6 rounded-lg w-full bg-green-600 hover:bg-green-700 text-white"
       >
         Buy Now
       </button>

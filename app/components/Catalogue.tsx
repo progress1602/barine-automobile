@@ -3,16 +3,21 @@
 import Navbar from "./Navbar";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation"; // Updated import for Next.js 13+
 import { Label } from "@/components/ui/label";
 
 const API_URL = "https://car-rental-system-wgtb.onrender.com/graphql";
 
+// ================= GraphQL Queries =================
 const GET_CARS_QUERY = `
   query {
     getCars {
@@ -25,6 +30,25 @@ const GET_CARS_QUERY = `
   }
 `;
 
+const BUY_CAR_MUTATION = `
+  mutation BuyCar($carId: ID!, $fullName: String!, $phoneNumber: String!, $email: String!) {
+    buyCar(carId: $carId, fullName: $fullName, phoneNumber: $phoneNumber, email: $email) {
+      id
+      fullName
+      email
+      phoneNumber
+      status
+      createdAt
+      car {
+        id
+        make
+        model
+      }
+    }
+  }
+`;
+
+// ================= Types =================
 interface Car {
   id: string;
   make: string;
@@ -33,10 +57,15 @@ interface Car {
   imageUrl: string;
 }
 
-// Updated CarCard with formatted price
-const CarCard: React.FC<Car> = ({ make, price, model, imageUrl }) => {
-  const formattedPrice = Number(price).toLocaleString(); // ✅ format price with commas
-
+// ✅ CarCard with Buy button
+const CarCard: React.FC<Car & { onBuy: (car: Car) => void }> = ({
+  make,
+  price,
+  model,
+  imageUrl,
+  id,
+  onBuy,
+}) => {
   return (
     <div className="bg-slate-200 mt-20 p-8 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center">
       <Image
@@ -48,11 +77,13 @@ const CarCard: React.FC<Car> = ({ make, price, model, imageUrl }) => {
       />
       <h3 className="text-2xl font-medium text-gray-900 mb-3">{make}</h3>
       <p className="text-gray-600 text-center mb-4">{model}</p>
-      <div className="flex items-baseline mt-auto">
-        <span className="text-4xl font-light">₦</span>
-        <span className="text-5xl font-light">{formattedPrice}</span>
-        <span className="text-gray-600 ml-2">/ for sale</span>
-      </div>
+
+      <Button
+        className="py-3 px-6 rounded-lg w-full bg-green-600 hover:bg-green-700 text-white"
+        onClick={() => onBuy({ id, make, model, price, imageUrl })}
+      >
+        Buy Now
+      </Button>
     </div>
   );
 };
@@ -62,19 +93,11 @@ const CarCatalogue = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [make, setMake] = useState("");
-  const [model, setModel] = useState("");
-  const [id, setId] = useState("");
+  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
 
-  const handleClickOpen = ({ make, model, id }: { make: string; model: string; id: string }) => {
+  const handleBuy = (car: Car) => {
+    setSelectedCar(car);
     setOpen(true);
-    setMake(make);
-    setModel(model);
-    setId(id);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
   };
 
   useEffect(() => {
@@ -82,26 +105,18 @@ const CarCatalogue = () => {
       try {
         const response = await fetch(API_URL, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ query: GET_CARS_QUERY }),
         });
 
         const { data, errors } = await response.json();
-        console.log("Cars fetched:", { data, errors });
-
-        if (errors) {
-          throw new Error(errors[0].message);
-        }
+        if (errors) throw new Error(errors[0].message);
 
         setCars(data.getCars);
       } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred");
-        }
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
       } finally {
         setLoading(false);
       }
@@ -110,167 +125,81 @@ const CarCatalogue = () => {
     fetchCars();
   }, []);
 
-  if (loading) {
-    return <p className="text-center text-xl">Loading catalogue...</p>;
-  }
-
-  if (error) {
-    return <p className="text-center text-red-500">No cars found: {error}</p>;
-  }
+  if (loading) return <p className="text-center text-xl">Loading catalogue...</p>;
+  if (error) return <p className="text-center text-red-500">No cars found: {error}</p>;
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">
       <Navbar />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {cars.map((car) => (
-          <div onClick={() => handleClickOpen({ make: car.make, model: car.model, id: car.id })} key={car.id}>
-            <CarCard {...car} />
-          </div>
+          <CarCard key={car.id} {...car} onBuy={handleBuy} />
         ))}
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
-        <SimpleDialog id={id} make={make} model={model} onClose={handleClose} />
+        {selectedCar && (
+          <BuyDialog car={selectedCar} onClose={() => setOpen(false)} />
+        )}
       </Dialog>
     </section>
   );
 };
 
-export interface SimpleDialogProps {
+// ================= BuyDialog =================
+export interface BuyDialogProps {
   onClose: () => void;
-  make: string;
-  model: string;
-  id: string;
+  car: Car;
 }
 
-function SimpleDialog(props: SimpleDialogProps) {
-  const { make, model, id, onClose } = props;
+function BuyDialog({ car, onClose }: BuyDialogProps) {
   const [loading, setLoading] = useState(false);
-  const router = useRouter(); // Use the router hook
   const [formData, setFormData] = useState({
-    car: "",
-    startdate: "",
-    enddate: "",
-    pickuplocation: "",
-    dropofflocation: "",
-    totalprice: "",
+    fullName: "",
+    email: "",
+    phoneNumber: "",
   });
 
   const handleInputChange = (field: string, value: string) => {
-    const currentDate = new Date("2025-03-20"); // Hardcoded for now
-    const selectedDate = new Date(value);
-
-    if ((field === "startdate" || field === "enddate") && value && selectedDate < currentDate) {
-      toast.error("You cannot use a date that has passed.");
-      return;
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    if (field === "startdate" || field === "enddate") {
-      calculateTotalPrice(field === "startdate" ? value : formData.startdate, field === "enddate" ? value : formData.enddate);
-    }
-  };
-
-  const calculateTotalPrice = (start: string, end: string) => {
-    if (start && end) {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-      if (endDate < startDate) {
-        toast.error("End date cannot be before start date");
-        return;
-      }
-      const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const pricePerDay = 50; // Hardcoded; consider fetching from car data
-      const total = diffDays * pricePerDay;
-
-      setFormData((prev) => ({
-        ...prev,
-        totalprice: total.toString(),
-      }));
-    }
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async () => {
-    if (!formData.startdate || !formData.enddate || !formData.pickuplocation || !formData.dropofflocation) {
-      toast.error("Please fill in all required fields");
+    if (!formData.fullName || !formData.email || !formData.phoneNumber) {
+      toast.error("Please fill in all fields");
       return;
     }
 
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-
-      const mutation = `
-        mutation {
-          createBooking(
-            carId: "${id}"
-            startDate: "${formData.startdate}"
-            endDate: "${formData.enddate}"
-            pickupLocation: "${formData.pickuplocation}"
-            dropoffLocation: "${formData.dropofflocation}"
-          ) {
-            id
-            status
-            totalPrice
-            car { id make model price }
-            user { id fullName email }
-            startDate
-            endDate
-            pickupLocation
-            dropoffLocation
-          }
-        }
-      `;
 
       const response = await fetch(API_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ query: mutation }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: BUY_CAR_MUTATION,
+          variables: {
+            carId: car.id,
+            fullName: formData.fullName,
+            email: formData.email,
+            phoneNumber: formData.phoneNumber,
+          },
+        }),
       });
 
-      const result = await response.json();
+      const { data, errors } = await response.json();
 
-      if (result.errors && result.errors.length > 0) {
-        toast.error(result.errors[0].message);
-        return;
-      }
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem("token");
-          toast.error("Session expired. Please log in again.");
-          router.push("/login");
-          return;
-        }
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      if (errors) {
+        throw new Error(errors[0].message);
       }
 
-      const booking = result.data?.createBooking;
-      if (booking) {
-        toast.success("Booking successfully!");
-        onClose();
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1000);
-      } else {
-        throw new Error("No booking data returned from server");
-      }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "An unexpected error occurred";
-      toast.error(message);
-      if (message.includes("token") || message.includes("authentication")) {
-        router.push("/signup");
-      }
+      toast.success(
+        `Purchase request successful for ${data.buyCar.car.make} ${data.buyCar.car.model}.`
+      );
+      onClose();
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -279,59 +208,60 @@ function SimpleDialog(props: SimpleDialogProps) {
   return (
     <DialogContent className="sm:max-w-[425px]">
       <DialogHeader>
-        <DialogTitle className="text-2xl font-semibold">Car Rental Form</DialogTitle>
-        <p className="text-gray-500">Please fill in your rental details below.</p>
+        <DialogTitle className="text-2xl font-semibold">Buy Car</DialogTitle>
+        <p className="text-gray-500">Enter your details to proceed with purchase.</p>
       </DialogHeader>
       <ScrollArea className="max-h-[60vh] pr-4">
         <div className="grid gap-6 py-4">
-          <div className="grid gap-4">
-            <Label htmlFor="car">Car</Label>
-            <Input id="car" readOnly value={`${make}, ${model}`} placeholder="Search for a car" />
+          {/* Car Details (Read-only) */}
+          <div className="grid gap-2">
+            <Label>Car</Label>
+            <Input readOnly value={`${car.make} ${car.model}`} />
           </div>
-          <div className="grid gap-4">
-            <Label htmlFor="startdate">Start Date</Label>
+
+          {/* Full Name */}
+          <div className="grid gap-2">
+            <Label htmlFor="fullName">Full Name</Label>
             <Input
-              id="startdate"
-              type="date"
-              value={formData.startdate}
-              onChange={(e) => handleInputChange("startdate", e.target.value)}
+              id="fullName"
+              placeholder="Enter your full name"
+              value={formData.fullName}
+              onChange={(e) => handleInputChange("fullName", e.target.value)}
             />
           </div>
-          <div className="grid gap-4">
-            <Label htmlFor="enddate">End Date</Label>
+
+          {/* Email */}
+          <div className="grid gap-2">
+            <Label htmlFor="email">Email</Label>
             <Input
-              id="enddate"
-              type="date"
-              value={formData.enddate}
-              onChange={(e) => handleInputChange("enddate", e.target.value)}
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
             />
           </div>
-          <div className="grid gap-4">
-            <Label htmlFor="pickuplocation">Pickup Location</Label>
+
+          {/* Phone Number */}
+          <div className="grid gap-2">
+            <Label htmlFor="phone">Phone Number</Label>
             <Input
-              id="pickuplocation"
-              placeholder="Enter pickup location"
-              value={formData.pickuplocation}
-              onChange={(e) => handleInputChange("pickuplocation", e.target.value)}
-            />
-          </div>
-          <div className="grid gap-4">
-            <Label htmlFor="dropofflocation">Drop-off Location</Label>
-            <Input
-              id="dropofflocation"
-              placeholder="Enter drop-off location"
-              value={formData.dropofflocation}
-              onChange={(e) => handleInputChange("dropofflocation", e.target.value)}
+              id="phone"
+              placeholder="Enter your phone number"
+              value={formData.phoneNumber}
+              onChange={(e) =>
+                handleInputChange("phoneNumber", e.target.value)
+              }
             />
           </div>
         </div>
       </ScrollArea>
       <Button
-        className="w-full bg-black hover:bg-gray-800 text-white"
+        className="w-full bg-green-600 hover:bg-green-700 text-white"
         onClick={handleSubmit}
         disabled={loading}
       >
-        {loading ? "Processing..." : "Rent"}
+        {loading ? "Processing..." : "Confirm Purchase"}
       </Button>
     </DialogContent>
   );
