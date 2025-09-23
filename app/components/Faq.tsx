@@ -26,7 +26,7 @@ const faqs = [
   {
     question: "Do your cars come with a warranty?",
     answer:
-      "All our vehicles come with a warranty or guarantee. Specific warranty terms may vary depending on the car’s make, model, and whether it’s new or pre-owned.",
+      "All our vehicles come with a warranty or guarantee. Specific warranty terms may vary depending on the car’s make, model.",
   },
 ];
 
