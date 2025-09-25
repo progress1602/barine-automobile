@@ -14,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const API_URL = "https://car-rental-system-wgtb.onrender.com/graphql";
 
@@ -57,15 +58,10 @@ interface Car {
   imageUrl: string;
 }
 
-// ✅ CarCard with Buy button
-const CarCard: React.FC<Car & { onBuy: (car: Car) => void }> = ({
-  make,
-  price,
-  model,
-  imageUrl,
-  id,
-  onBuy,
-}) => {
+// ✅ CarCard with Buy button & image click
+const CarCard: React.FC<
+  Car & { onBuy: (car: Car) => void; onView: (car: Car) => void }
+> = ({ make, price, model, imageUrl, id, onBuy, onView }) => {
   return (
     <div className="bg-slate-200 mt-20 p-8 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center">
       <Image
@@ -73,13 +69,14 @@ const CarCard: React.FC<Car & { onBuy: (car: Car) => void }> = ({
         alt={make}
         width={200}
         height={200}
-        className="w-full h-48 rounded-2xl object-contain mb-6"
+        className="w-full h-48 rounded-2xl object-contain mb-6 cursor-pointer"
+        onClick={() => onView({ id, make, model, price, imageUrl })}
       />
       <h3 className="text-2xl font-medium text-gray-900 mb-3">{make}</h3>
       <p className="text-gray-600 text-center mb-4">{model}</p>
 
       <Button
-        className="py-3 px-6 rounded-lg w-full bg-green-600 hover:bg-green-700 text-white"
+        className="py-3 px-6 rounded-lg w-full bg-red-600 hover:bg-red-700 text-white"
         onClick={() => onBuy({ id, make, model, price, imageUrl })}
       >
         Buy Now
@@ -92,12 +89,21 @@ const CarCatalogue = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
+
+  const [openBuy, setOpenBuy] = useState(false);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+
+  const [openImages, setOpenImages] = useState(false);
+  const [viewCar, setViewCar] = useState<Car | null>(null);
 
   const handleBuy = (car: Car) => {
     setSelectedCar(car);
-    setOpen(true);
+    setOpenBuy(true);
+  };
+
+  const handleView = (car: Car) => {
+    setViewCar(car);
+    setOpenImages(true);
   };
 
   useEffect(() => {
@@ -133,12 +139,21 @@ const CarCatalogue = () => {
       <Navbar />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {cars.map((car) => (
-          <CarCard key={car.id} {...car} onBuy={handleBuy} />
+          <CarCard key={car.id} {...car} onBuy={handleBuy} onView={handleView} />
         ))}
       </div>
-      <Dialog open={open} onOpenChange={setOpen}>
+
+      {/* Buy Dialog */}
+      <Dialog open={openBuy} onOpenChange={setOpenBuy}>
         {selectedCar && (
-          <BuyDialog car={selectedCar} onClose={() => setOpen(false)} />
+          <BuyDialog car={selectedCar} onClose={() => setOpenBuy(false)} />
+        )}
+      </Dialog>
+
+      {/* Image Slider Dialog */}
+      <Dialog open={openImages} onOpenChange={setOpenImages}>
+        {viewCar && (
+          <ImageSliderDialog car={viewCar} onClose={() => setOpenImages(false)} />
         )}
       </Dialog>
     </section>
@@ -197,9 +212,7 @@ function BuyDialog({ car, onClose }: BuyDialogProps) {
       );
       onClose();
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : "Something went wrong"
-      );
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -249,20 +262,67 @@ function BuyDialog({ car, onClose }: BuyDialogProps) {
               id="phone"
               placeholder="Enter your phone number"
               value={formData.phoneNumber}
-              onChange={(e) =>
-                handleInputChange("phoneNumber", e.target.value)
-              }
+              onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
             />
           </div>
         </div>
       </ScrollArea>
       <Button
-        className="w-full bg-green-600 hover:bg-green-700 text-white"
+        className="w-full bg-red-600 hover:bg-red-700 text-white"
         onClick={handleSubmit}
         disabled={loading}
       >
         {loading ? "Processing..." : "Confirm Purchase"}
       </Button>
+    </DialogContent>
+  );
+}
+
+// ================= Image Slider Dialog =================
+interface ImageSliderDialogProps {
+  car: Car;
+  onClose: () => void;
+}
+
+function ImageSliderDialog({ car }: ImageSliderDialogProps) {
+  // For demo, just duplicating car.imageUrl as multiple images
+  const images = [car.imageUrl, car.imageUrl, car.imageUrl];
+  const [index, setIndex] = useState(0);
+
+  const next = () => setIndex((prev) => (prev + 1) % images.length);
+  const prev = () => setIndex((prev) => (prev - 1 + images.length) % images.length);
+
+  return (
+    <DialogContent className="sm:max-w-[600px]">
+      <DialogHeader>
+        <DialogTitle className="text-2xl font-semibold">
+          {car.make} {car.model} - Gallery
+        </DialogTitle>
+      </DialogHeader>
+      <div className="relative flex items-center justify-center">
+        <Image
+          src={images[index]}
+          alt={`${car.make} ${car.model}`}
+          width={500}
+          height={300}
+          className="rounded-lg object-contain"
+        />
+        <button
+          className="absolute left-2 bg-white rounded-full p-2 shadow-md"
+          onClick={prev}
+        >
+          <ArrowLeft />
+        </button>
+        <button
+          className="absolute right-2 bg-white rounded-full p-2 shadow-md"
+          onClick={next}
+        >
+          <ArrowRight />
+        </button>
+      </div>
+      <p className="text-center mt-2 text-gray-500">
+        Image {index + 1} of {images.length}
+      </p>
     </DialogContent>
   );
 }

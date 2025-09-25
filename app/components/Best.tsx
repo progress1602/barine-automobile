@@ -39,7 +39,7 @@ const DriverSafety = () => {
         {/* Right Image */}
         <div className="relative h-[400px] md:h-auto">
           <Image
-            src="/best.jpeg"
+            src="/DSC_0122.JPG"
             alt="Luxury car showcase"
             fill
             className="object-cover"

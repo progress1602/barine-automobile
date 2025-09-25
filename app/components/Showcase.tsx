@@ -124,7 +124,7 @@ const CarCard: React.FC<CarCardProps> = ({ make, model, imageUrl }) => {
       </div> */}
       <button
         onClick={handleBuyNow}
-        className="py-3 px-6 rounded-lg w-full bg-green-600 hover:bg-green-700 text-white"
+        className="py-3 px-6 rounded-lg w-full bg-red-600 hover:bg-red-700 text-white"
       >
         Buy Now
       </button>

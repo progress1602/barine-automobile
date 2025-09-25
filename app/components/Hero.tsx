@@ -6,27 +6,27 @@ import { useEffect, useState, useCallback } from "react";
 // Slide data with images, titles, and subtitles
 const slides = [
   {
-    image: "/car5.jpeg",
-    title: "New Limousine",
-    subtitle: "Dolore ipsum amet sit in vivid lorem trindu",
+    image: "/DSC_0098.JPG",
+    title: "Excoutive",
+    subtitle: "True beauty in motion",
   },
   {
-    image: "/car1.jpeg",
-    title: "Luxury Sedan",
+    image: "/DSC_0122.JPG",
+    title: "Luxury",
     subtitle: "Experience unmatched comfort and style",
   },
   {
-    image: "/car2.webp",
-    title: "Executive SUV",
+    image: "/DSC_0132.JPG",
+    title: "Executive",
     subtitle: "Command the road with elegance",
   },
   {
-    image: "/car3.jpeg",
-    title: "Sports Series",
+    image: "/DSC_0161.JPG",
+    title: "Comfort Series",
     subtitle: "Pure performance meets luxury",
   },
   {
-    image: "/car4.jpeg",
+    image: "/DSC_0048.JPG",
     title: "Classic Series",
     subtitle: "Timeless beauty redefined",
   },
