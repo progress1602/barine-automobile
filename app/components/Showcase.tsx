@@ -14,7 +14,6 @@ const CarSlider = () => {
     id: string;
     make: string;
     model: string;
-    price: string;
     imageUrl: string;
   }
 
@@ -22,7 +21,7 @@ const CarSlider = () => {
     const fetchCars = async () => {
       try {
         const response = await fetch(
-          "https://car-rental-system-wgtb.onrender.com/graphql",
+          "https://car-rental-system-na26.onrender.com/graphql",
           {
             method: "POST",
             headers: {
@@ -35,7 +34,6 @@ const CarSlider = () => {
                   id
                   make
                   model
-                  price
                   imageUrl
                 }
               }
@@ -48,8 +46,15 @@ const CarSlider = () => {
         if (result.errors) {
           throw new Error(result.errors[0].message);
         }
-        // ✅ Just take first 3 cars
-        setCars(result.data.getCars.slice(0, 3));
+
+        const carsWithFullUrls = result.data.getCars.map((car: Car) => ({
+          ...car,
+          imageUrl: car.imageUrl.startsWith("http")
+            ? car.imageUrl
+            : `https://car-rental-system-na26.onrender.com/${car.imageUrl}`,
+        }));
+
+        setCars(carsWithFullUrls.slice(0, 6)); // show 6 for a grid feel
         setLoading(false);
       } catch (err) {
         if (err instanceof Error) {
@@ -64,18 +69,22 @@ const CarSlider = () => {
     fetchCars();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return <div className="flex items-center justify-center">Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="max-w-7xl mx-auto px-6 py-16">
+      <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+        Featured Cars
+      </h2>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
         {cars.map((car) => (
           <CarCard
             key={car.id}
             make={car.make}
             model={car.model}
-            price={car.price}
             imageUrl={car.imageUrl}
           />
         ))}
@@ -87,7 +96,6 @@ const CarSlider = () => {
 interface CarCardProps {
   make: string;
   model: string;
-  price: string;
   imageUrl: string;
 }
 
@@ -98,36 +106,34 @@ const CarCard: React.FC<CarCardProps> = ({ make, model, imageUrl }) => {
     router.push("/catalogue");
   };
 
-  // Format price with commas
-  // const formattedPrice = Number(price).toLocaleString();
-
   return (
-    <div className="bg-[#FAF9F6] p-8 rounded-2xl flex flex-col items-center">
-      <Image
-        src={imageUrl}
-        alt={make}
-        width={200}
-        height={200}
-        className="w-full h-48 object-contain mb-6 rounded-xl"
-      />
-      <h3 className="text-2xl font-medium text-gray-900 mb-2">{make}</h3>
-      <div className="flex gap-1 mb-4">
-        {[...Array(5)].map((_, index) => (
-          <Star key={index} className="w-5 h-5 fill-red-600" />
-        ))}
+    <div className="bg-white shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden group flex flex-col">
+      <div className="relative w-full h-56">
+        <Image
+          src={imageUrl}
+          alt={make}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+        />
       </div>
-      <p className="text-gray-600 text-center mb-4">{model}</p>
-      {/* <div className="flex items-baseline mb-6">
-        <span className="text-4xl font-light">₦</span>
-        <span className="text-5xl font-light">{formattedPrice}</span>
-        <span className="text-gray-600 ml-2">/ for sale</span>
-      </div> */}
-      <button
-        onClick={handleBuyNow}
-        className="py-3 px-6 rounded-lg w-full bg-red-600 hover:bg-red-700 text-white"
-      >
-        Buy Now
-      </button>
+
+      <div className="flex flex-col flex-1 p-6 text-center">
+        <h3 className="text-xl font-semibold text-gray-900">{make}</h3>
+        <p className="text-gray-500 text-sm mb-4">{model}</p>
+
+        <div className="flex justify-center gap-1 mb-6">
+          {[...Array(5)].map((_, index) => (
+            <Star key={index} className="w-5 h-5 text-red-500 fill-red-500" />
+          ))}
+        </div>
+
+        <button
+          onClick={handleBuyNow}
+          className="mt-auto py-3 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium transition-colors duration-300"
+        >
+          Buy Now
+        </button>
+      </div>
     </div>
   );
 };

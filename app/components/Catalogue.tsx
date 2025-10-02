@@ -18,7 +18,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const API_URL = "https://car-rental-system-wgtb.onrender.com/graphql";
 
-// ================= GraphQL Queries =================
+// ================= GraphQL =================
 const GET_CARS_QUERY = `
   query {
     getCars {
@@ -58,33 +58,42 @@ interface Car {
   imageUrl: string;
 }
 
-// ✅ CarCard with Buy button & image click
+// ✅ CarCard styled like CarSlider
 const CarCard: React.FC<
   Car & { onBuy: (car: Car) => void; onView: (car: Car) => void }
 > = ({ make, price, model, imageUrl, id, onBuy, onView }) => {
   return (
-    <div className="bg-slate-200 mt-20 p-8 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center">
-      <Image
-        src={imageUrl}
-        alt={make}
-        width={200}
-        height={200}
-        className="w-full h-48 rounded-2xl object-contain mb-6 cursor-pointer"
+    <div className="bg-white shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden group flex flex-col">
+      {/* Image */}
+      <div
+        className="relative w-full h-56 cursor-pointer"
         onClick={() => onView({ id, make, model, price, imageUrl })}
-      />
-      <h3 className="text-2xl font-medium text-gray-900 mb-3">{make}</h3>
-      <p className="text-gray-600 text-center mb-4">{model}</p>
-
-      <Button
-        className="py-3 px-6 rounded-lg w-full bg-red-600 hover:bg-red-700 text-white"
-        onClick={() => onBuy({ id, make, model, price, imageUrl })}
       >
-        Buy Now
-      </Button>
+        <Image
+          src={imageUrl}
+          alt={make}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+      </div>
+
+      {/* Details */}
+      <div className="flex flex-col flex-1 p-6 text-center">
+        <h3 className="text-xl font-semibold text-gray-900">{make}</h3>
+        <p className="text-gray-500 text-sm mb-4">{model}</p>
+
+        <button
+          onClick={() => onBuy({ id, make, model, price, imageUrl })}
+          className="mt-auto py-3 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium transition-colors duration-300"
+        >
+          Buy Now
+        </button>
+      </div>
     </div>
   );
 };
 
+// ================= Catalogue =================
 const CarCatalogue = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,9 +129,7 @@ const CarCatalogue = () => {
 
         setCars(data.getCars);
       } catch (err: unknown) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
       } finally {
         setLoading(false);
       }
@@ -135,9 +142,14 @@ const CarCatalogue = () => {
   if (error) return <p className="text-center text-red-500">No cars found: {error}</p>;
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-12">
+    <section className="max-w-7xl mx-auto px-6 py-16">
       <Navbar />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* <h2 className="text-3xl font-bold text-gray-900 text-center md:mt-20 mb-12">
+        Car Catalogue
+      </h2> */}
+
+      {/* ✅ Same grid pattern as CarSlider */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 md:mt-32">
         {cars.map((car) => (
           <CarCard key={car.id} {...car} onBuy={handleBuy} onView={handleView} />
         ))}
@@ -150,7 +162,7 @@ const CarCatalogue = () => {
         )}
       </Dialog>
 
-      {/* Image Slider Dialog */}
+      {/* Image Slider */}
       <Dialog open={openImages} onOpenChange={setOpenImages}>
         {viewCar && (
           <ImageSliderDialog car={viewCar} onClose={() => setOpenImages(false)} />
@@ -226,13 +238,12 @@ function BuyDialog({ car, onClose }: BuyDialogProps) {
       </DialogHeader>
       <ScrollArea className="max-h-[60vh] pr-4">
         <div className="grid gap-6 py-4">
-          {/* Car Details (Read-only) */}
+          {/* Car Info */}
           <div className="grid gap-2">
             <Label>Car</Label>
             <Input readOnly value={`${car.make} ${car.model}`} />
           </div>
 
-          {/* Full Name */}
           <div className="grid gap-2">
             <Label htmlFor="fullName">Full Name</Label>
             <Input
@@ -243,7 +254,6 @@ function BuyDialog({ car, onClose }: BuyDialogProps) {
             />
           </div>
 
-          {/* Email */}
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -255,7 +265,6 @@ function BuyDialog({ car, onClose }: BuyDialogProps) {
             />
           </div>
 
-          {/* Phone Number */}
           <div className="grid gap-2">
             <Label htmlFor="phone">Phone Number</Label>
             <Input
@@ -278,14 +287,13 @@ function BuyDialog({ car, onClose }: BuyDialogProps) {
   );
 }
 
-// ================= Image Slider Dialog =================
+// ================= Image Slider =================
 interface ImageSliderDialogProps {
   car: Car;
   onClose: () => void;
 }
 
 function ImageSliderDialog({ car }: ImageSliderDialogProps) {
-  // For demo, just duplicating car.imageUrl as multiple images
   const images = [car.imageUrl, car.imageUrl, car.imageUrl];
   const [index, setIndex] = useState(0);
 
