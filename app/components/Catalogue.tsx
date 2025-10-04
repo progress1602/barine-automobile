@@ -1,7 +1,7 @@
 "use client";
 
 import Navbar from "./Navbar";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import {
   Dialog,
@@ -16,20 +16,8 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-const API_URL = "https://car-rental-system-wgtb.onrender.com/graphql";
-
 // ================= GraphQL =================
-const GET_CARS_QUERY = `
-  query {
-    getCars {
-      id
-      make
-      model
-      price
-      imageUrl
-    }
-  }
-`;
+const API_URL = "https://car-rental-system-wgtb.onrender.com/graphql";
 
 const BUY_CAR_MUTATION = `
   mutation BuyCar($carId: ID!, $fullName: String!, $phoneNumber: String!, $email: String!) {
@@ -55,22 +43,125 @@ interface Car {
   make: string;
   model: string;
   price: string;
-  imageUrl: string;
+  images: string[]; // ✅ multiple images
 }
 
-// ✅ CarCard styled like CarSlider
+// ✅ Static Cars (Frontend Only)
+const cars: Car[] = [
+  {
+    id: "1",
+    make: "JAC",
+    model: "T8 pickup truck",
+    price: "25000",
+    images: [
+      "/catalogue/DSC_0031.JPG",
+      "/catalogue/DSC_0033.JPG",
+      "/catalogue/DSC_0035.JPG",
+    ],
+  },
+  {
+    id: "2",
+    make: "JAC",
+    model: "Sunray Van",
+    price: "22000",
+    images: [
+      "/catalogue/DSC_0062.JPG",
+      "/catalogue/DSC_0065.JPG",
+      "/catalogue/DSC_0063.JPG",
+    ],
+  },
+  {
+    id: "3",
+    make: "Honda",
+    model: "Accord",
+    price: "60000",
+    images: [
+      "/catalogue/DSC_0077.JPG",
+      "/catalogue/DSC_0080.JPG",
+      "/catalogue/DSC_0093.JPG",
+    ],
+  },
+  {
+    id: "4",
+    make: "Lexus",
+    model: "RX 350",
+    price: "55000",
+    images: [
+      "/catalogue/DSC_0098.JPG",
+      "/catalogue/DSC_0099.JPG",
+      "/catalogue/DSC_0098.JPG",
+    ],
+  },
+  {
+    id: "5",
+    make: "Lexus",
+    model: "XSeries",
+    price: "48000",
+    images: [
+      "/catalogue/DSC_0110.JPG",
+      "/catalogue/DSC_0107.JPG",
+      "/catalogue/DSC_0101.JPG",
+    ],
+  },
+  {
+    id: "6",
+    make: "Toyota",
+    model: "Hilux",
+    price: "45000",
+    images: [
+      "/catalogue/DSC_0112.JPG",
+      "/catalogue/DSC_0111.JPG",
+      "/catalogue/DSC_0113.JPG",
+    ],
+  },
+  {
+    id: "7",
+    make: "Mercedes-Benz",
+    model: "GLC 300",
+    price: "20000",
+    images: [
+      "/catalogue/DSC_0122.JPG",
+      "/catalogue/DSC_0125.JPG",
+      "/catalogue/DSC_0129.JPG",
+    ],
+  },
+  {
+    id: "8",
+    make: "Lexus",
+    model: "GX 460",
+    price: "28000",
+    images: [
+      "/catalogue/DSC_0132.JPG",
+      "/catalogue/DSC_0133.JPG",
+      "/catalogue/DSC_0148.JPG",
+    ],
+  },
+  {
+    id: "9",
+    make: "Toyota",
+    model: "Corolla",
+    price: "21000",
+    images: [
+      "/catalogue/DSC_0161.JPG",
+      "/catalogue/DSC_0155.JPG",
+      "/catalogue/DSC_0152.JPG",
+    ],
+  },
+];
+
+// ✅ CarCard
 const CarCard: React.FC<
   Car & { onBuy: (car: Car) => void; onView: (car: Car) => void }
-> = ({ make, price, model, imageUrl, id, onBuy, onView }) => {
+> = ({ make, price, model, images, id, onBuy, onView }) => {
   return (
     <div className="bg-white shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden group flex flex-col">
       {/* Image */}
       <div
         className="relative w-full h-56 cursor-pointer"
-        onClick={() => onView({ id, make, model, price, imageUrl })}
+        onClick={() => onView({ id, make, model, price, images })}
       >
         <Image
-          src={imageUrl}
+          src={images[0]}
           alt={make}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -83,7 +174,7 @@ const CarCard: React.FC<
         <p className="text-gray-500 text-sm mb-4">{model}</p>
 
         <button
-          onClick={() => onBuy({ id, make, model, price, imageUrl })}
+          onClick={() => onBuy({ id, make, model, price, images })}
           className="mt-auto py-3 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium transition-colors duration-300"
         >
           Buy Now
@@ -95,10 +186,6 @@ const CarCard: React.FC<
 
 // ================= Catalogue =================
 const CarCatalogue = () => {
-  const [cars, setCars] = useState<Car[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const [openBuy, setOpenBuy] = useState(false);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
 
@@ -115,40 +202,9 @@ const CarCatalogue = () => {
     setOpenImages(true);
   };
 
-  useEffect(() => {
-    const fetchCars = async () => {
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: GET_CARS_QUERY }),
-        });
-
-        const { data, errors } = await response.json();
-        if (errors) throw new Error(errors[0].message);
-
-        setCars(data.getCars);
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCars();
-  }, []);
-
-  if (loading) return <p className="text-center text-xl">Loading catalogue...</p>;
-  if (error) return <p className="text-center text-red-500">No cars found: {error}</p>;
-
   return (
     <section className="max-w-7xl mx-auto px-6 py-16">
       <Navbar />
-      {/* <h2 className="text-3xl font-bold text-gray-900 text-center md:mt-20 mb-12">
-        Car Catalogue
-      </h2> */}
-
-      {/* ✅ Same grid pattern as CarSlider */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 md:mt-32">
         {cars.map((car) => (
           <CarCard key={car.id} {...car} onBuy={handleBuy} onView={handleView} />
@@ -238,12 +294,10 @@ function BuyDialog({ car, onClose }: BuyDialogProps) {
       </DialogHeader>
       <ScrollArea className="max-h-[60vh] pr-4">
         <div className="grid gap-6 py-4">
-          {/* Car Info */}
           <div className="grid gap-2">
             <Label>Car</Label>
             <Input readOnly value={`${car.make} ${car.model}`} />
           </div>
-
           <div className="grid gap-2">
             <Label htmlFor="fullName">Full Name</Label>
             <Input
@@ -253,7 +307,6 @@ function BuyDialog({ car, onClose }: BuyDialogProps) {
               onChange={(e) => handleInputChange("fullName", e.target.value)}
             />
           </div>
-
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -264,7 +317,6 @@ function BuyDialog({ car, onClose }: BuyDialogProps) {
               onChange={(e) => handleInputChange("email", e.target.value)}
             />
           </div>
-
           <div className="grid gap-2">
             <Label htmlFor="phone">Phone Number</Label>
             <Input
@@ -294,11 +346,10 @@ interface ImageSliderDialogProps {
 }
 
 function ImageSliderDialog({ car }: ImageSliderDialogProps) {
-  const images = [car.imageUrl, car.imageUrl, car.imageUrl];
   const [index, setIndex] = useState(0);
 
-  const next = () => setIndex((prev) => (prev + 1) % images.length);
-  const prev = () => setIndex((prev) => (prev - 1 + images.length) % images.length);
+  const next = () => setIndex((prev) => (prev + 1) % car.images.length);
+  const prev = () => setIndex((prev) => (prev - 1 + car.images.length) % car.images.length);
 
   return (
     <DialogContent className="sm:max-w-[600px]">
@@ -309,7 +360,7 @@ function ImageSliderDialog({ car }: ImageSliderDialogProps) {
       </DialogHeader>
       <div className="relative flex items-center justify-center">
         <Image
-          src={images[index]}
+          src={car.images[index]}
           alt={`${car.make} ${car.model}`}
           width={500}
           height={300}
@@ -329,7 +380,7 @@ function ImageSliderDialog({ car }: ImageSliderDialogProps) {
         </button>
       </div>
       <p className="text-center mt-2 text-gray-500">
-        Image {index + 1} of {images.length}
+        Image {index + 1} of {car.images.length}
       </p>
     </DialogContent>
   );

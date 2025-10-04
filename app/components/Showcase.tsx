@@ -1,101 +1,96 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+// import React, { useState } from "react";
 import Image from "next/image";
 import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+// ================= Types =================
+interface Car {
+  id: string;
+  make: string;
+  model: string;
+  price: string;
+  images: string[];
+}
+
+// ✅ Static Cars (same as CarCatalogue, just first 4)
+const cars: Car[] = [
+  {
+    id: "1",
+    make: "JAC",
+    model: "T8 pickup truck",
+    price: "25000",
+    images: [
+      "/catalogue/DSC_0031.JPG",
+      "/catalogue/DSC_0033.JPG",
+      "/catalogue/DSC_0035.JPG",
+    ],
+  },
+  // {
+  //   id: "2",
+  //   make: "JAC",
+  //   model: "Sunray Van",
+  //   price: "22000",
+  //   images: [
+  //     "/catalogue/DSC_0062.JPG",
+  //     "/catalogue/DSC_0065.JPG",
+  //     "/catalogue/DSC_0063.JPG",
+  //   ],
+  // },
+  {
+    id: "3",
+    make: "Honda",
+    model: "Accord",
+    price: "60000",
+    images: [
+      "/catalogue/DSC_0077.JPG",
+      "/catalogue/DSC_0080.JPG",
+      "/catalogue/DSC_0093.JPG",
+    ],
+  },
+  {
+    id: "4",
+    make: "Lexus",
+    model: "RX 350",
+    price: "55000",
+    images: [
+      "/catalogue/DSC_0098.JPG",
+      "/catalogue/DSC_0099.JPG",
+      "/catalogue/DSC_0098.JPG",
+    ],
+  },
+];
+
+// ================= CarSlider Component =================
 const CarSlider = () => {
-  const [cars, setCars] = useState<Car[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  interface Car {
-    id: string;
-    make: string;
-    model: string;
-    imageUrl: string;
-  }
-
-  useEffect(() => {
-    const fetchCars = async () => {
-      try {
-        const response = await fetch(
-          "https://car-rental-system-na26.onrender.com/graphql",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              query: `
-              query {
-                getCars {
-                  id
-                  make
-                  model
-                  imageUrl
-                }
-              }
-            `,
-            }),
-          }
-        );
-
-        const result = await response.json();
-        if (result.errors) {
-          throw new Error(result.errors[0].message);
-        }
-
-        const carsWithFullUrls = result.data.getCars.map((car: Car) => ({
-          ...car,
-          imageUrl: car.imageUrl.startsWith("http")
-            ? car.imageUrl
-            : `https://car-rental-system-na26.onrender.com/${car.imageUrl}`,
-        }));
-
-        setCars(carsWithFullUrls.slice(0, 6)); // show 6 for a grid feel
-        setLoading(false);
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred");
-        }
-        setLoading(false);
-      }
-    };
-
-    fetchCars();
-  }, []);
-
-  if (loading)
-    return <div className="flex items-center justify-center">Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
   return (
-    <div className="max-w-7xl mx-auto px-6 py-16">
+    <section className="max-w-7xl mx-auto px-6 py-16">
       <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
         Featured Cars
       </h2>
 
+      {/* ✅ Display only 4 cars in grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
-        {cars.map((car) => (
+        {cars.slice(0, 4).map((car) => (
           <CarCard
             key={car.id}
             make={car.make}
             model={car.model}
-            imageUrl={car.imageUrl}
+            price={car.price}
+            imageUrl={car.images[0]}
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 
+// ================= CarCard Component =================
 interface CarCardProps {
   make: string;
   model: string;
+  price: string;
   imageUrl: string;
 }
 
@@ -108,7 +103,8 @@ const CarCard: React.FC<CarCardProps> = ({ make, model, imageUrl }) => {
 
   return (
     <div className="bg-white shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden group flex flex-col">
-      <div className="relative w-full h-56">
+      {/* Image */}
+      <div className="relative w-full h-56 cursor-pointer">
         <Image
           src={imageUrl}
           alt={make}
@@ -117,16 +113,19 @@ const CarCard: React.FC<CarCardProps> = ({ make, model, imageUrl }) => {
         />
       </div>
 
+      {/* Details */}
       <div className="flex flex-col flex-1 p-6 text-center">
         <h3 className="text-xl font-semibold text-gray-900">{make}</h3>
         <p className="text-gray-500 text-sm mb-4">{model}</p>
 
+        {/* ⭐ Rating Stars (same as before) */}
         <div className="flex justify-center gap-1 mb-6">
           {[...Array(5)].map((_, index) => (
             <Star key={index} className="w-5 h-5 text-red-500 fill-red-500" />
           ))}
         </div>
 
+        {/* Button */}
         <button
           onClick={handleBuyNow}
           className="mt-auto py-3 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium transition-colors duration-300"
